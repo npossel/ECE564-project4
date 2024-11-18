@@ -43,29 +43,31 @@ void	setsegs()
 	extern int	etext;
 	struct sd	*psd;
 	uint32		np, npages;
+	uint32		tnpages;
 
-	npages = 4096;		/* 16 Meg for now */
-	maxheap = (char *)(npages * NBPG - 1);
+	npages = XINU_PAGES;		
+	tnpages = 0xFFFFFFFF/PAGE_SIZE;
+	maxheap = (char *)(npages * PAGE_SIZE - 1);
 
 	psd = &gdt_copy[1];	/* kernel code segment */
-	np = ((int)&etext + NBPG-1) / NBPG;	/* # code pages */
+	np = ((int)&etext + PAGE_SIZE-1) / PAGE_SIZE;	/* # code pages */
 	psd->sd_lolimit = np;
 	psd->sd_hilimit = np >> 16;
 
 	psd = &gdt_copy[2];	/* kernel data segment */
-	psd->sd_lolimit = npages;
-	psd->sd_hilimit = npages >> 16;
+	psd->sd_lolimit = tnpages;
+	psd->sd_hilimit = tnpages >> 16;
 
 	psd = &gdt_copy[3];	/* kernel stack segment */
-	psd->sd_lolimit = npages;
-	psd->sd_hilimit = npages >> 16;
+	psd->sd_lolimit = tnpages;
+	psd->sd_hilimit = tnpages >> 16;
 
 	psd = &gdt_copy[4];	/* bootp code segment */
 	psd->sd_lolimit = npages;   /* Allows execution of 0x100000 CODE */
 	psd->sd_hilimit = npages >> 16;
 
 	memcpy(gdt, gdt_copy, sizeof(gdt_copy));
-	initsp = npages*NBPG  - 4;
+	initsp = npages*PAGE_SIZE  - 4;
 }
 
 extern	int outb(int, int);
