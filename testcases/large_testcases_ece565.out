@@ -1,0 +1,257 @@
+preallocated pages = 8192
+
+=======================================
+              run TEST1       
+=======================================
+[P5] virtual pages allocated = 8192
+[P5] FFS frames used         = 0
+
+[P5] allocating 8192 pages ...
+[P5] virtual pages allocated = 16384
+[P5] FFS frames used         = 0
+[P5] allocated starts at address 0x02000000
+
+[P5] 8192 pages initialized...
+[P5] virtual pages allocated = 16384
+[P5] FFS frames used         = 8192
+
+[P5] 8192 pages freed...
+[P5] virtual pages allocated = 8192
+[P5] FFS frames used         = 0
+
+=== Test case 1 PASS ===
+
+=======================================
+              run TEST2       
+=======================================
+[P6] virtual pages allocated = 8192
+[P6] FFS frames used         = 0
+
+[P6] allocating 16384 pages ...
+[P6] virtual pages allocated = 24576
+[P6] FFS frames used         = 0
+[P6] allocated starts at address 0x02000000
+
+[P6] 16384 pages initialized...
+[P6] virtual pages allocated = 24576
+[P6] FFS frames used         = 16384
+
+[P6] 16384 pages freed...
+[P6] virtual pages allocated = 8192
+[P6] FFS frames used         = 0
+
+=== Test case 2 PASS ===
+
+=======================================
+              run TEST3       
+=======================================
+[P7] virtual pages allocated = 8192
+[P7] FFS frames used         = 0
+
+[P7] allocating 16384 pages ...
+[P7] virtual pages allocated = 24576
+[P7] FFS frames used         = 0
+[P7] allocated starts at address 0x02000000
+
+[P7] 16384 pages initialized...
+[P7] virtual pages allocated = 24576
+[P7] FFS frames used         = 16384
+
+[P7] 16384 pages freed...
+[P7] virtual pages allocated = 8192
+[P7] FFS frames used         = 0
+[P8] virtual pages allocated = 8192
+[P8] FFS frames used         = 0
+
+[P8] allocating 16384 pages ...
+[P8] virtual pages allocated = 24576
+[P8] FFS frames used         = 0
+[P8] allocated starts at address 0x02000000
+
+[P8] 16384 pages initialized...
+[P8] virtual pages allocated = 24576
+[P8] FFS frames used         = 16384
+
+[P8] 16384 pages freed...
+[P8] virtual pages allocated = 8192
+[P8] FFS frames used         = 0
+
+=== Test case 3 PASS ===
+
+=======================================
+              run TEST4       
+=======================================
+[P9] virtual pages allocated = 8192
+[P9] FFS frames used         = 0
+
+[P9] allocating 4096 pages ...
+[P9] virtual pages allocated = 12288
+[P9] FFS frames used         = 0
+[P9] allocated starts at address 0x02000000
+[P10] virtual pages allocated = 8192
+[P10] FFS frames used         = 0
+
+[P10] allocating 4096 pages ...
+[P10] virtual pages allocated = 12288
+[P10] FFS frames used         = 0
+[P10] allocated starts at address 0x02000000
+[P11] virtual pages allocated = 8192
+[P11] FFS frames used         = 0
+
+[P11] allocating 4096 pages ...
+[P11] virtual pages allocated = 12288
+[P11] FFS frames used         = 0
+[P11] allocated starts at address 0x02000000
+[P12] virtual pages allocated = 8192
+[P12] FFS frames used         = 0
+
+[P12] allocating 4096 pages ...
+[P12] virtual pages allocated = 12288
+[P12] FFS frames used         = 0
+[P12] allocated starts at address 0x02000000
+
+[P10] 4096 pages initialized...
+[P10] virtual pages allocated = 12288
+
+[P9] 4096 pages initialized...
+[P9] virtual pages allocated = 12288
+[P9] FFS frames used         = 4096
+
+[P9] 4096 pages freed...
+[P9] virtual pages allocated = 8192
+[P9] FFS frames used         = 0
+[P10] FFS frames used         = 4096
+
+[P10] 4096 pages freed...
+[P10] virtual pages allocated = 8192
+[P10] FFS frames used         = 0
+
+[P11] 4096 pages initialized...
+[P11] virtual pages allocated = 12288
+[P11] FFS frames used         = 4096
+
+[P11] 4096 pages freed...
+
+[P12] 4096 pages initialized...
+[P12] virtual pages allocated = 12288
+[P12] FFS frames used         = 4096
+
+[P12] 4096 pages freed...
+[P11] virtual pages allocated = 8192
+[P11] FFS frames used         = 0
+[P12] virtual pages allocated = 8192
+[P12] FFS frames used         = 0
+
+=== Test case 4 PASS ===
+
+=======================================
+              run TEST5       
+=======================================
+[P13] virtual pages allocated = 8192
+[P13] FFS frames used         = 0
+
+[P13] allocating 32768 pages ...
+[P13] virtual pages allocated = 40960
+[P13] FFS frames used         = 0
+[P13] allocated starts at address 0x02000000
+
+[P13] 16384 pages initialized...
+[P13] virtual pages allocated = 40960
+[P13] FFS frames used         = 16384
+
+[P13] 32768 pages freed...
+[P13] virtual pages allocated = 8192
+[P13] FFS frames used         = 0
+
+=== Test case 5 PASS ===
+
+=======================================
+              run TEST6       
+=======================================
+[P14] virtual pages allocated = 8192
+[P14] FFS frames used         = 0
+
+[P14] allocating 65536 pages ...
+[P14] virtual pages allocated = 73728
+[P14] FFS frames used         = 0
+[P14] allocated starts at address 0x02000000
+[P15] virtual pages allocated = 8192
+[P15] FFS frames used         = 0
+
+[P15] allocating 65536 pages ...
+[P15] virtual pages allocated = 73728
+[P15] FFS frames used         = 0
+[P15] allocated starts at address 0x02000000
+[P16] virtual pages allocated = 8192
+[P16] FFS frames used         = 0
+
+[P16] allocating 65536 pages ...
+[P16] virtual pages allocated = 73728
+[P16] FFS frames used         = 0
+[P16] allocated starts at address 0x02000000
+[P17] virtual pages allocated = 8192
+[P17] FFS frames used         = 0
+
+[P17] allocating 65536 pages ...
+[P17] virtual pages allocated = 73728
+[P17] FFS frames used         = 0
+[P17] allocated starts at address 0x02000000
+
+[P14] 4096 pages initialized...
+[P14] virtual pages allocated = 73728
+[P14] FFS frames used         = 4096
+
+[P15] 4096 pages initialized...
+[P15] virtual pages allocated = 73728
+[P15] FFS frames used         = 4096
+
+[P16] 4096 pages initialized...
+[P16] virtual pages allocated = 73728
+[P16] FFS frames used         = 4096
+
+[P14] 65536 pages freed...
+[P14] virtual pages allocated = 8192
+[P14] FFS frames used         = 0
+
+[P15] 65536 pages freed...
+[P15] virtual pages allocated = 8192
+[P15] FFS frames used         = 0
+
+[P16] 65536 pages freed...
+[P16] virtual pages allocated = 8192
+[P16] FFS frames used         = 0
+
+[P17] 4096 pages initialized...
+[P17] virtual pages allocated = 73728
+[P17] FFS frames used         = 4096
+
+[P17] 65536 pages freed...
+[P17] virtual pages allocated = 8192
+[P17] FFS frames used         = 0
+
+=== Test case 6 PASS ===
+
+=======================================
+              run TEST7       
+=======================================
+[P18] virtual pages allocated = 8192
+[P18] FFS frames used         = 0
+
+[P18] trying to allocate 1048575 pages...
+vmalloc(): not enough contiguous heap space available!
+
+=== Test case 7 PASS ===
+
+=======================================
+              run TEST8       
+=======================================
+[P19] virtual pages allocated = 8192
+[P19] FFS frames used         = 0
+
+[P19] trying to allocate 1040383 pages...
+vmalloc(): not enough page table space available!
+
+=== Test case 8 PASS ===
+
+All tests are done!
+PASSED=8 FAILED=0

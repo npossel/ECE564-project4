@@ -1,0 +1,562 @@
+preallocated pages = 25600
+[P4] # FFS  frames in use:: 0/16384
+[P4] # SWAP frames in use:: 0/32768
+
+================== TEST 1 ===================
+
+
+===> [P5] starting... 
+[P5] virtual pages allocated = 25600
+[P5] FFS frames used         = 0
+[P5] # FFS  frames in use:: 0/16384
+[P5] # SWAP frames in use:: 0/32768
+
+===> [P5] allocating 32768 pages ...
+[P5] virtual pages allocated = 58368
+[P5] FFS frames used         = 0
+[P5] # FFS  frames in use:: 0/16384
+[P5] # SWAP frames in use:: 0/32768
+
+===> [P5] initializing 16384 pages ...
+[P5] 16384 pages initialized...
+[P5] virtual pages allocated = 58368
+[P5] FFS frames used         = 16384
+[P5] # FFS  frames in use:: 16384/16384
+[P5] # SWAP frames in use:: 0/32768
+
+===>[P5] reading 16384 pages starting from page 0 ...
+
+===>[P5] about to complete ...
+
+[P5] virtual pages allocated = 58368
+[P5] FFS frames used         = 16384
+[P5] # FFS  frames in use:: 16384/16384
+[P5] # SWAP frames in use:: 0/32768
+
+===>[P5] returning ...
+
+[P4] # FFS  frames in use:: 0/16384
+[P4] # SWAP frames in use:: 0/32768
+
+================== TEST 2 ===================
+
+
+===> [P6] starting... 
+[P6] virtual pages allocated = 25600
+[P6] FFS frames used         = 0
+[P6] # FFS  frames in use:: 0/16384
+[P6] # SWAP frames in use:: 0/32768
+
+===> [P6] allocating 32768 pages ...
+[P6] virtual pages allocated = 58368
+[P6] FFS frames used         = 0
+[P6] # FFS  frames in use:: 0/16384
+[P6] # SWAP frames in use:: 0/32768
+
+===> [P6] initializing 16389 pages ...
+eviction:: FFS frame 0x0, swap frame 0x0 copy
+eviction:: FFS frame 0x1, swap frame 0x1 copy
+eviction:: FFS frame 0x2, swap frame 0x2 copy
+eviction:: FFS frame 0x3, swap frame 0x3 copy
+eviction:: FFS frame 0x4, swap frame 0x4 copy
+[P6] 16389 pages initialized...
+[P6] virtual pages allocated = 58368
+[P6] FFS frames used         = 16384
+[P6] # FFS  frames in use:: 16384/16384
+[P6] # SWAP frames in use:: 5/32768
+
+===>[P6] reading 10 pages starting from page 0 ...
+eviction:: FFS frame 0x5, swap frame 0x5 copy
+swapping:: swap frame 0x0, FFS frame 0x5
+eviction:: FFS frame 0x6, swap frame 0x6 copy
+swapping:: swap frame 0x1, FFS frame 0x6
+eviction:: FFS frame 0x7, swap frame 0x7 copy
+swapping:: swap frame 0x2, FFS frame 0x7
+eviction:: FFS frame 0x8, swap frame 0x8 copy
+swapping:: swap frame 0x3, FFS frame 0x8
+eviction:: FFS frame 0x9, swap frame 0x9 copy
+swapping:: swap frame 0x4, FFS frame 0x9
+eviction:: FFS frame 0xa, swap frame 0xa copy
+swapping:: swap frame 0x5, FFS frame 0xa
+eviction:: FFS frame 0xb, swap frame 0xb copy
+swapping:: swap frame 0x6, FFS frame 0xb
+eviction:: FFS frame 0xc, swap frame 0xc copy
+swapping:: swap frame 0x7, FFS frame 0xc
+eviction:: FFS frame 0xd, swap frame 0xd copy
+swapping:: swap frame 0x8, FFS frame 0xd
+eviction:: FFS frame 0xe, swap frame 0xe copy
+swapping:: swap frame 0x9, FFS frame 0xe
+
+===>[P6] about to complete ...
+
+[P6] virtual pages allocated = 58368
+[P6] FFS frames used         = 16384
+[P6] # FFS  frames in use:: 16384/16384
+[P6] # SWAP frames in use:: 15/32768
+
+===>[P6] returning ...
+
+[P4] # FFS  frames in use:: 0/16384
+[P4] # SWAP frames in use:: 0/32768
+
+================== TEST 3 ===================
+
+
+===> [P7] starting... 
+[P7] virtual pages allocated = 25600
+[P7] FFS frames used         = 0
+[P7] # FFS  frames in use:: 0/16384
+[P7] # SWAP frames in use:: 0/32768
+
+===> [P7] allocating 32768 pages ...
+[P7] virtual pages allocated = 58368
+[P7] FFS frames used         = 0
+[P7] # FFS  frames in use:: 0/16384
+[P7] # SWAP frames in use:: 0/32768
+
+===> [P7] initializing 16389 pages ...
+eviction:: FFS frame 0xf, swap frame 0x0 copy
+eviction:: FFS frame 0x10, swap frame 0x1 copy
+eviction:: FFS frame 0x11, swap frame 0x2 copy
+eviction:: FFS frame 0x12, swap frame 0x3 copy
+eviction:: FFS frame 0x13, swap frame 0x4 copy
+[P7] 16389 pages initialized...
+[P7] virtual pages allocated = 58368
+[P7] FFS frames used         = 16384
+[P7] # FFS  frames in use:: 16384/16384
+[P7] # SWAP frames in use:: 5/32768
+
+===>[P7] reading 10 pages starting from page 0 ...
+
+===>[P7] about to complete ...
+
+[P7] virtual pages allocated = 58368
+[P7] FFS frames used         = 16384
+[P7] # FFS  frames in use:: 16384/16384
+[P7] # SWAP frames in use:: 5/32768
+
+===>[P7] returning ...
+
+[P4] # FFS  frames in use:: 0/16384
+[P4] # SWAP frames in use:: 0/32768
+
+================== TEST 4 ===================
+
+
+===> [P8] starting... 
+[P8] virtual pages allocated = 25600
+[P8] FFS frames used         = 0
+[P8] # FFS  frames in use:: 0/16384
+[P8] # SWAP frames in use:: 0/32768
+
+===> [P8] allocating 32768 pages ...
+[P8] virtual pages allocated = 58368
+[P8] FFS frames used         = 0
+[P8] # FFS  frames in use:: 0/16384
+[P8] # SWAP frames in use:: 0/32768
+
+===> [P8] initializing 16394 pages ...
+eviction:: FFS frame 0x14, swap frame 0x0 copy
+eviction:: FFS frame 0x15, swap frame 0x1 copy
+eviction:: FFS frame 0x16, swap frame 0x2 copy
+eviction:: FFS frame 0x17, swap frame 0x3 copy
+eviction:: FFS frame 0x18, swap frame 0x4 copy
+eviction:: FFS frame 0x19, swap frame 0x5 copy
+eviction:: FFS frame 0x1a, swap frame 0x6 copy
+eviction:: FFS frame 0x1b, swap frame 0x7 copy
+eviction:: FFS frame 0x1c, swap frame 0x8 copy
+eviction:: FFS frame 0x1d, swap frame 0x9 copy
+[P8] 16394 pages initialized...
+[P8] virtual pages allocated = 58368
+[P8] FFS frames used         = 16384
+[P8] # FFS  frames in use:: 16384/16384
+[P8] # SWAP frames in use:: 10/32768
+
+===>[P8] reading 100 pages starting from page 110 ...
+
+===>[P8] about to complete ...
+
+[P8] virtual pages allocated = 58368
+[P8] FFS frames used         = 16384
+[P8] # FFS  frames in use:: 16384/16384
+[P8] # SWAP frames in use:: 10/32768
+
+===>[P8] returning ...
+
+[P4] # FFS  frames in use:: 0/16384
+[P4] # SWAP frames in use:: 0/32768
+
+================== TEST 5 ===================
+
+
+===> [P9] starting... 
+[P9] virtual pages allocated = 25600
+[P9] FFS frames used         = 0
+[P9] # FFS  frames in use:: 0/16384
+[P9] # SWAP frames in use:: 0/32768
+
+===> [P9] allocating 32768 pages ...
+[P9] virtual pages allocated = 58368
+[P9] FFS frames used         = 0
+[P9] # FFS  frames in use:: 0/16384
+[P9] # SWAP frames in use:: 0/32768
+
+===> [P9] initializing 32768 pages ...
+eviction:: FFS frame 0x1e, swap frame 0x0 copy
+eviction:: FFS frame 0x1f, swap frame 0x1 copy
+eviction:: FFS frame 0x20, swap frame 0x2 copy
+eviction:: FFS frame 0x21, swap frame 0x3 copy
+eviction:: FFS frame 0x22, swap frame 0x4 copy
+eviction:: FFS frame 0x23, swap frame 0x5 copy
+eviction:: FFS frame 0x24, swap frame 0x6 copy
+eviction:: FFS frame 0x25, swap frame 0x7 copy
+eviction:: FFS frame 0x26, swap frame 0x8 copy
+eviction:: FFS frame 0x27, swap frame 0x9 copy
+eviction:: FFS frame 0x28, swap frame 0xa copy
+eviction:: FFS frame 0x29, swap frame 0xb copy
+eviction:: FFS frame 0x2a, swap frame 0xc copy
+eviction:: FFS frame 0x2b, swap frame 0xd copy
+eviction:: FFS frame 0x2c, swap frame 0xe copy
+eviction:: FFS frame 0x2d, swap frame 0xf copy
+eviction:: FFS frame 0x2e, swap frame 0x10 copy
+eviction:: FFS frame 0x2f, swap frame 0x11 copy
+eviction:: FFS frame 0x30, swap frame 0x12 copy
+eviction:: FFS frame 0x31, swap frame 0x13 copy
+eviction:: FFS frame 0x32, swap frame 0x14 copy
+eviction:: FFS frame 0x33, swap frame 0x15 copy
+eviction:: FFS frame 0x34, swap frame 0x16 copy
+eviction:: FFS frame 0x35, swap frame 0x17 copy
+eviction:: FFS frame 0x36, swap frame 0x18 copy
+eviction:: FFS frame 0x37, swap frame 0x19 copy
+eviction:: FFS frame 0x38, swap frame 0x1a copy
+eviction:: FFS frame 0x39, swap frame 0x1b copy
+eviction:: FFS frame 0x3a, swap frame 0x1c copy
+eviction:: FFS frame 0x3b, swap frame 0x1d copy
+eviction:: FFS frame 0x3c, swap frame 0x1e copy
+eviction:: FFS frame 0x3d, swap frame 0x1f copy
+eviction:: FFS frame 0x3e, swap frame 0x20 copy
+eviction:: FFS frame 0x3f, swap frame 0x21 copy
+eviction:: FFS frame 0x40, swap frame 0x22 copy
+eviction:: FFS frame 0x41, swap frame 0x23 copy
+eviction:: FFS frame 0x42, swap frame 0x24 copy
+eviction:: FFS frame 0x43, swap frame 0x25 copy
+eviction:: FFS frame 0x44, swap frame 0x26 copy
+eviction:: FFS frame 0x45, swap frame 0x27 copy
+eviction:: FFS frame 0x46, swap frame 0x28 copy
+eviction:: FFS frame 0x47, swap frame 0x29 copy
+eviction:: FFS frame 0x48, swap frame 0x2a copy
+eviction:: FFS frame 0x49, swap frame 0x2b copy
+eviction:: FFS frame 0x4a, swap frame 0x2c copy
+eviction:: FFS frame 0x4b, swap frame 0x2d copy
+eviction:: FFS frame 0x4c, swap frame 0x2e copy
+eviction:: FFS frame 0x4d, swap frame 0x2f copy
+eviction:: FFS frame 0x4e, swap frame 0x30 copy
+eviction:: FFS frame 0x4f, swap frame 0x31 copy
+[P9] 32768 pages initialized...
+[P9] virtual pages allocated = 58368
+[P9] FFS frames used         = 16384
+[P9] # FFS  frames in use:: 16384/16384
+[P9] # SWAP frames in use:: 16384/32768
+
+===>[P9] reading 20 pages starting from page 16384 ...
+
+===>[P9] about to complete ...
+
+[P9] virtual pages allocated = 58368
+[P9] FFS frames used         = 16384
+[P9] # FFS  frames in use:: 16384/16384
+[P9] # SWAP frames in use:: 16384/32768
+
+===>[P9] returning ...
+
+[P4] # FFS  frames in use:: 0/16384
+[P4] # SWAP frames in use:: 0/32768
+
+================== TEST 6 ===================
+
+
+===> [P10] starting... 
+[P10] virtual pages allocated = 25600
+[P10] FFS frames used         = 0
+[P10] # FFS  frames in use:: 0/16384
+[P10] # SWAP frames in use:: 0/32768
+
+===> [P10] allocating 32768 pages ...
+[P10] virtual pages allocated = 58368
+[P10] FFS frames used         = 0
+[P10] # FFS  frames in use:: 0/16384
+[P10] # SWAP frames in use:: 0/32768
+
+===> [P10] initializing 32768 pages ...
+eviction:: FFS frame 0x1e, swap frame 0x0 copy
+eviction:: FFS frame 0x1f, swap frame 0x1 copy
+eviction:: FFS frame 0x20, swap frame 0x2 copy
+eviction:: FFS frame 0x21, swap frame 0x3 copy
+eviction:: FFS frame 0x22, swap frame 0x4 copy
+eviction:: FFS frame 0x23, swap frame 0x5 copy
+eviction:: FFS frame 0x24, swap frame 0x6 copy
+eviction:: FFS frame 0x25, swap frame 0x7 copy
+eviction:: FFS frame 0x26, swap frame 0x8 copy
+eviction:: FFS frame 0x27, swap frame 0x9 copy
+eviction:: FFS frame 0x28, swap frame 0xa copy
+eviction:: FFS frame 0x29, swap frame 0xb copy
+eviction:: FFS frame 0x2a, swap frame 0xc copy
+eviction:: FFS frame 0x2b, swap frame 0xd copy
+eviction:: FFS frame 0x2c, swap frame 0xe copy
+eviction:: FFS frame 0x2d, swap frame 0xf copy
+eviction:: FFS frame 0x2e, swap frame 0x10 copy
+eviction:: FFS frame 0x2f, swap frame 0x11 copy
+eviction:: FFS frame 0x30, swap frame 0x12 copy
+eviction:: FFS frame 0x31, swap frame 0x13 copy
+eviction:: FFS frame 0x32, swap frame 0x14 copy
+eviction:: FFS frame 0x33, swap frame 0x15 copy
+eviction:: FFS frame 0x34, swap frame 0x16 copy
+eviction:: FFS frame 0x35, swap frame 0x17 copy
+eviction:: FFS frame 0x36, swap frame 0x18 copy
+eviction:: FFS frame 0x37, swap frame 0x19 copy
+eviction:: FFS frame 0x38, swap frame 0x1a copy
+eviction:: FFS frame 0x39, swap frame 0x1b copy
+eviction:: FFS frame 0x3a, swap frame 0x1c copy
+eviction:: FFS frame 0x3b, swap frame 0x1d copy
+eviction:: FFS frame 0x3c, swap frame 0x1e copy
+eviction:: FFS frame 0x3d, swap frame 0x1f copy
+eviction:: FFS frame 0x3e, swap frame 0x20 copy
+eviction:: FFS frame 0x3f, swap frame 0x21 copy
+eviction:: FFS frame 0x40, swap frame 0x22 copy
+eviction:: FFS frame 0x41, swap frame 0x23 copy
+eviction:: FFS frame 0x42, swap frame 0x24 copy
+eviction:: FFS frame 0x43, swap frame 0x25 copy
+eviction:: FFS frame 0x44, swap frame 0x26 copy
+eviction:: FFS frame 0x45, swap frame 0x27 copy
+eviction:: FFS frame 0x46, swap frame 0x28 copy
+eviction:: FFS frame 0x47, swap frame 0x29 copy
+eviction:: FFS frame 0x48, swap frame 0x2a copy
+eviction:: FFS frame 0x49, swap frame 0x2b copy
+eviction:: FFS frame 0x4a, swap frame 0x2c copy
+eviction:: FFS frame 0x4b, swap frame 0x2d copy
+eviction:: FFS frame 0x4c, swap frame 0x2e copy
+eviction:: FFS frame 0x4d, swap frame 0x2f copy
+eviction:: FFS frame 0x4e, swap frame 0x30 copy
+eviction:: FFS frame 0x4f, swap frame 0x31 copy
+[P10] 32768 pages initialized...
+[P10] virtual pages allocated = 58368
+[P10] FFS frames used         = 16384
+[P10] # FFS  frames in use:: 16384/16384
+[P10] # SWAP frames in use:: 16384/32768
+
+===>[P10] reading 20 pages starting from page 0 ...
+
+===>[P10] about to complete ...
+
+[P10] virtual pages allocated = 58368
+[P10] FFS frames used         = 16384
+[P10] # FFS  frames in use:: 16384/16384
+[P10] # SWAP frames in use:: 16404/32768
+
+===>[P10] returning ...
+
+[P4] # FFS  frames in use:: 0/16384
+[P4] # SWAP frames in use:: 0/32768
+
+================== TEST 7 ===================
+
+
+===> [P11] starting... 
+[P11] virtual pages allocated = 25600
+[P11] FFS frames used         = 0
+[P11] # FFS  frames in use:: 0/16384
+[P11] # SWAP frames in use:: 0/32768
+
+===> [P11] allocating 32768 pages ...
+[P11] virtual pages allocated = 58368
+[P11] FFS frames used         = 0
+[P11] # FFS  frames in use:: 0/16384
+[P11] # SWAP frames in use:: 0/32768
+
+===> [P11] initializing 32768 pages ...
+eviction:: FFS frame 0x32, swap frame 0x0 copy
+eviction:: FFS frame 0x33, swap frame 0x1 copy
+eviction:: FFS frame 0x34, swap frame 0x2 copy
+eviction:: FFS frame 0x35, swap frame 0x3 copy
+eviction:: FFS frame 0x36, swap frame 0x4 copy
+eviction:: FFS frame 0x37, swap frame 0x5 copy
+eviction:: FFS frame 0x38, swap frame 0x6 copy
+eviction:: FFS frame 0x39, swap frame 0x7 copy
+eviction:: FFS frame 0x3a, swap frame 0x8 copy
+eviction:: FFS frame 0x3b, swap frame 0x9 copy
+eviction:: FFS frame 0x3c, swap frame 0xa copy
+eviction:: FFS frame 0x3d, swap frame 0xb copy
+eviction:: FFS frame 0x3e, swap frame 0xc copy
+eviction:: FFS frame 0x3f, swap frame 0xd copy
+eviction:: FFS frame 0x40, swap frame 0xe copy
+eviction:: FFS frame 0x41, swap frame 0xf copy
+eviction:: FFS frame 0x42, swap frame 0x10 copy
+eviction:: FFS frame 0x43, swap frame 0x11 copy
+eviction:: FFS frame 0x44, swap frame 0x12 copy
+eviction:: FFS frame 0x45, swap frame 0x13 copy
+eviction:: FFS frame 0x46, swap frame 0x14 copy
+eviction:: FFS frame 0x47, swap frame 0x15 copy
+eviction:: FFS frame 0x48, swap frame 0x16 copy
+eviction:: FFS frame 0x49, swap frame 0x17 copy
+eviction:: FFS frame 0x4a, swap frame 0x18 copy
+eviction:: FFS frame 0x4b, swap frame 0x19 copy
+eviction:: FFS frame 0x4c, swap frame 0x1a copy
+eviction:: FFS frame 0x4d, swap frame 0x1b copy
+eviction:: FFS frame 0x4e, swap frame 0x1c copy
+eviction:: FFS frame 0x4f, swap frame 0x1d copy
+eviction:: FFS frame 0x50, swap frame 0x1e copy
+eviction:: FFS frame 0x51, swap frame 0x1f copy
+eviction:: FFS frame 0x52, swap frame 0x20 copy
+eviction:: FFS frame 0x53, swap frame 0x21 copy
+eviction:: FFS frame 0x54, swap frame 0x22 copy
+eviction:: FFS frame 0x55, swap frame 0x23 copy
+eviction:: FFS frame 0x56, swap frame 0x24 copy
+eviction:: FFS frame 0x57, swap frame 0x25 copy
+eviction:: FFS frame 0x58, swap frame 0x26 copy
+eviction:: FFS frame 0x59, swap frame 0x27 copy
+eviction:: FFS frame 0x5a, swap frame 0x28 copy
+eviction:: FFS frame 0x5b, swap frame 0x29 copy
+eviction:: FFS frame 0x5c, swap frame 0x2a copy
+eviction:: FFS frame 0x5d, swap frame 0x2b copy
+eviction:: FFS frame 0x5e, swap frame 0x2c copy
+eviction:: FFS frame 0x5f, swap frame 0x2d copy
+eviction:: FFS frame 0x60, swap frame 0x2e copy
+eviction:: FFS frame 0x61, swap frame 0x2f copy
+eviction:: FFS frame 0x62, swap frame 0x30 copy
+eviction:: FFS frame 0x63, swap frame 0x31 copy
+[P11] 32768 pages initialized...
+[P11] virtual pages allocated = 58368
+[P11] FFS frames used         = 16384
+[P11] # FFS  frames in use:: 16384/16384
+[P11] # SWAP frames in use:: 16384/32768
+
+===>[P11] reading 32768 pages starting from page 0 ...
+
+===>[P11] about to complete ...
+
+[P11] virtual pages allocated = 58368
+[P11] FFS frames used         = 16384
+[P11] # FFS  frames in use:: 16384/16384
+[P11] # SWAP frames in use:: 32768/32768
+
+===>[P11] returning ...
+
+[P4] # FFS  frames in use:: 0/16384
+[P4] # SWAP frames in use:: 0/32768
+
+================== TEST 8 ===================
+
+
+===> [P12] starting... 
+[P12] virtual pages allocated = 25600
+[P12] FFS frames used         = 0
+[P12] # FFS  frames in use:: 0/16384
+[P12] # SWAP frames in use:: 0/32768
+
+===> [P12] allocating 32768 pages ...
+[P12] virtual pages allocated = 58368
+[P12] FFS frames used         = 0
+[P12] # FFS  frames in use:: 0/16384
+[P12] # SWAP frames in use:: 0/32768
+
+===> [P12] initializing 16384 pages ...
+[P12] 16384 pages initialized...
+[P12] virtual pages allocated = 58368
+[P12] FFS frames used         = 16384
+[P12] # FFS  frames in use:: 16384/16384
+[P12] # SWAP frames in use:: 0/32768
+
+===>[P12] reading 16384 pages starting from page 0 ...
+
+===> [P13] starting... 
+[P13] virtual pages allocated = 25600
+[P13] FFS frames used         = 0
+[P13] # FFS  frames in use:: 16384/16384
+[P13] # SWAP frames in use:: 0/32768
+
+===> [P13] allocating 32768 pages ...
+[P13] virtual pages allocated = 58368
+[P13] FFS frames used         = 0
+[P13] # FFS  frames in use:: 16384/16384
+[P13] # SWAP frames in use:: 0/32768
+
+===> [P13] initializing 100 pages ...
+eviction:: FFS frame 0x32, swap frame 0x0 copy
+eviction:: FFS frame 0x33, swap frame 0x1 copy
+eviction:: FFS frame 0x34, swap frame 0x2 copy
+eviction:: FFS frame 0x35, swap frame 0x3 copy
+eviction:: FFS frame 0x36, swap frame 0x4 copy
+eviction:: FFS frame 0x37, swap frame 0x5 copy
+eviction:: FFS frame 0x38, swap frame 0x6 copy
+eviction:: FFS frame 0x39, swap frame 0x7 copy
+eviction:: FFS frame 0x3a, swap frame 0x8 copy
+eviction:: FFS frame 0x3b, swap frame 0x9 copy
+eviction:: FFS frame 0x3c, swap frame 0xa copy
+eviction:: FFS frame 0x3d, swap frame 0xb copy
+eviction:: FFS frame 0x3e, swap frame 0xc copy
+eviction:: FFS frame 0x3f, swap frame 0xd copy
+eviction:: FFS frame 0x40, swap frame 0xe copy
+eviction:: FFS frame 0x41, swap frame 0xf copy
+eviction:: FFS frame 0x42, swap frame 0x10 copy
+eviction:: FFS frame 0x43, swap frame 0x11 copy
+eviction:: FFS frame 0x44, swap frame 0x12 copy
+eviction:: FFS frame 0x45, swap frame 0x13 copy
+eviction:: FFS frame 0x46, swap frame 0x14 copy
+eviction:: FFS frame 0x47, swap frame 0x15 copy
+eviction:: FFS frame 0x48, swap frame 0x16 copy
+eviction:: FFS frame 0x49, swap frame 0x17 copy
+eviction:: FFS frame 0x4a, swap frame 0x18 copy
+eviction:: FFS frame 0x4b, swap frame 0x19 copy
+eviction:: FFS frame 0x4c, swap frame 0x1a copy
+eviction:: FFS frame 0x4d, swap frame 0x1b copy
+eviction:: FFS frame 0x4e, swap frame 0x1c copy
+eviction:: FFS frame 0x4f, swap frame 0x1d copy
+eviction:: FFS frame 0x50, swap frame 0x1e copy
+eviction:: FFS frame 0x51, swap frame 0x1f copy
+eviction:: FFS frame 0x52, swap frame 0x20 copy
+eviction:: FFS frame 0x53, swap frame 0x21 copy
+eviction:: FFS frame 0x54, swap frame 0x22 copy
+eviction:: FFS frame 0x55, swap frame 0x23 copy
+eviction:: FFS frame 0x56, swap frame 0x24 copy
+eviction:: FFS frame 0x57, swap frame 0x25 copy
+eviction:: FFS frame 0x58, swap frame 0x26 copy
+eviction:: FFS frame 0x59, swap frame 0x27 copy
+eviction:: FFS frame 0x5a, swap frame 0x28 copy
+eviction:: FFS frame 0x5b, swap frame 0x29 copy
+eviction:: FFS frame 0x5c, swap frame 0x2a copy
+eviction:: FFS frame 0x5d, swap frame 0x2b copy
+eviction:: FFS frame 0x5e, swap frame 0x2c copy
+eviction:: FFS frame 0x5f, swap frame 0x2d copy
+eviction:: FFS frame 0x60, swap frame 0x2e copy
+eviction:: FFS frame 0x61, swap frame 0x2f copy
+eviction:: FFS frame 0x62, swap frame 0x30 copy
+eviction:: FFS frame 0x63, swap frame 0x31 copy
+[P13] 100 pages initialized...
+[P13] virtual pages allocated = 58368
+[P13] FFS frames used         = 100
+[P13] # FFS  frames in use:: 16384/16384
+[P13] # SWAP frames in use:: 100/32768
+
+===>[P13] reading 100 pages starting from page 0 ...
+
+===>[P13] about to complete ...
+
+[P13] virtual pages allocated = 58368
+[P13] FFS frames used         = 100
+[P13] # FFS  frames in use:: 16384/16384
+[P13] # SWAP frames in use:: 100/32768
+
+===>[P13] returning ...
+
+
+===>[P12] about to complete ...
+
+[P12] virtual pages allocated = 58368
+[P12] FFS frames used         = 16284
+[P12] # FFS  frames in use:: 16284/16384
+[P12] # SWAP frames in use:: 100/32768
+
+===>[P12] returning ...
+
+[P4] # FFS  frames in use:: 0/16384
+[P4] # SWAP frames in use:: 0/32768
