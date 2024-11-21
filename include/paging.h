@@ -9,7 +9,7 @@
 #define MAX_FFS_SIZE    16*1024 /* size of FFS space  (in frames)                        */
 #define MAX_SWAP_SIZE   32*1024 /* size of swap space  (in frames)                       */
 #define MAX_PT_SIZE     1024    /* size of space used for page tables (in frames)        */
-
+#define PAGE_DIR_ADDR_START (XINU_PAGES+MAX_FFS_SIZE)*PAGE_SIZE
 
 /* Structure for a page directory entry */
 
