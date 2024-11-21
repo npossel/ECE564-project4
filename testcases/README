@@ -1,0 +1,53 @@
+IMPORTANT:
+
+ECE465 students should add the following line at the beginning of paging.h:
+
+#define ECE465
+
+
+NOTE: use QUANTUM=10ms for all test cases
+
+-------
+
+small_testcases.c
+=================
+Perform small virtual heap allocations, and allow to incrementally test: 
+- vcreate 
+- vmalloc
+- vfree
+- page fault handler: lazy allocation and segmentation fault
+- allocations requiring multiple pages of PT
+- concurrent processes
+
+Outputs:
+- ECE465 students: small_testcases_ece465.out
+- ECE565 students: small_testcases_ece565.out
+
+large_testcases.c
+=================
+Perform large virtual heap allocations 
+
+Outputs:
+The test case outcome is embedded in the run. 
+If you need more information to debug your code, uncomment the "#define DEBUG" line. The outputs containing debugging information are the following:
+
+- ECE465 students: large_testcases_ece465.out
+- ECE565 students: large_testcases_ece565.out
+
+Note that, in multi-process runs, the processes' interleaving might change from run to run (possibly affecting the debugging output). For grading, we will disable debugging.
+
+swapping_testcases.c 
+====================
+Perform large virtual heap allocations causing swapping.
+Note: have a look at the information in the comments at the beginning of the test case file.  
+ 
+Output: 
+
+- ECE465 students:
+ * swapping_testcases_ece465.out - prints up to 50 evictions/swappings per test case 
+ * swapping_testcases_full_ece465.out - prints all the evictions/swappings (this is a large file!)
+
+- ECE565 students:
+ * swapping_testcases_ece565.out - prints up to 50 evictions/swappings per test case 
+ * swapping_testcases_full_ece565.out - prints all the evictions/swappings (this is a large file!)
+

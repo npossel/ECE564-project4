@@ -1,0 +1,102 @@
+TESTS START NOW...
+-------------------
+
+P4:: Free FFS pages = 16384 out of 16384
+
+[TEST 1] P4:: Spawning 2 processes that do not perform any vheap allocations...
+
+P5:: virtual pages = 8192
+P5:: FFS frames = 0
+P6:: virtual pages = 8192
+P6:: FFS frames = 0
+P4:: Free FFS pages = 16384 out of 16384
+
+[TEST 2] P4:: Spawning 1 process that performs small allocations...
+
+P7:: Allocating 8/4/2/8 pages...
+P7:: ptr1=0x2000000, ptr2=0x2008000, ptr3=0x200c000, ptr4=0x200e000
+P7:: virtual pages = 8214
+P7:: FFS frames = 0
+
+P7:: Freeing 40 pages @ ptr1 (should fail)...
+vfree failed as expected
+P7:: virtual pages = 8214
+P7:: FFS frames = 0
+
+P7:: Freeing 6 pages @ ptr2...
+P7:: virtual pages = 8208
+P7:: FFS frames = 0
+
+P7:: Allocating 5 pages...
+P7:: Allocating 8 pages...
+P7:: ptr1=0x2000000, ptr4=0x200e000, ptr5=0x2008000, ptr6=0x2016000
+P7:: virtual pages = 8221
+P7:: FFS frames = 0
+P7:: Free FFS pages = 16384 out of 16384
+
+P7:: Accessing 1 page @ ptr1...
+P7:: Free FFS pages = 16383 out of 16384
+
+P7:: Accessing again 1 page @ ptr1...
+P7:: Free FFS pages = 16383 out of 16384
+
+P7:: Accessing 2nd page from ptr4...
+P7:: Free FFS pages = 16382 out of 16384
+
+P7:: virtual pages = 8221
+P7:: FFS frames = 2
+
+P7:: Testing segmentation fault...
+P7:: SEGMENTATION_FAULT
+
+P4:: Free FFS pages = 16384 out of 16384
+
+[TEST 3] P4:: Spawning 1 process that performs large allocations...
+
+P8:: virtual pages = 8192
+P8:: FFS frames = 0
+
+P8:: Making 3 allocations, 4096 pages each...
+P8:: ptr1=0x2000000, ptr2=0x3000000, ptr3=0x4000000
+P8:: virtual pages = 20480
+P8:: FFS frames = 0
+
+P8:: Initializing 2048 pages, 2 elements per page...
+P8:: virtual pages = 20480
+P8:: FFS frames = 2048
+
+P8:: checking the values written in the 2048 pages...
+P8:: virtual pages = 20480
+P8:: FFS frames = 2048
+
+P4:: Free FFS pages = 16384 out of 16384
+
+[TEST 4] P4:: Spawning 10 concurrent processes (interleaving can change from run to run)...
+
+P9:: virtual pages = 8432
+P9:: FFS frames = 40
+P10:: virtual pages = 8432
+P10:: FFS frames = 40
+P11:: virtual pages = 8432
+P11:: FFS frames = 40
+P12:: virtual pages = 8432
+P12:: FFS frames = 40
+P13:: virtual pages = 8432
+P13:: FFS frames = 40
+P14:: virtual pages = 8432
+P14:: FFS frames = 40
+P15:: virtual pages = 8432
+P15:: FFS frames = 40
+P16:: virtual pages = 8432
+P16:: FFS frames = 40
+P17:: virtual pages = 8432
+P17:: FFS frames = 40
+P18:: virtual pages = 8432
+P18:: FFS frames = 40
+P4:: Free FFS pages = 15984 out of 16384
+
+P4:: Letting the processes terminate...
+
+P4:: Free FFS pages = 16384 out of 16384
+
+aq  
