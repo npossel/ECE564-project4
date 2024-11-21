@@ -14,6 +14,7 @@ extern	void main(void);	/* Main is the first process created	*/
 static	void sysinit(); 	/* Internal system initialization	*/
 extern	void meminit(void);	/* Initializes the free memory list	*/
 local	process startup(void);	/* Process to finish startup tasks	*/
+local	void initialize_page_table(void);	/* Initializes the page table used by system processes	*/
 
 /* Declarations of major kernel variables */
 
@@ -222,6 +223,11 @@ static	void	sysinit()
 	for (i = 0; i < NDEVS; i++) {
 		init(i);
 	}
+
+	/* Enable paging */
+	initialize_page_table();
+	enable_paging();
+
 	return;
 }
 
@@ -237,4 +243,22 @@ int32	delay(int n)
 {
 	DELAY(n);
 	return OK;
+}
+
+void 	initialize_page_table()
+{
+	uint32 base_address;
+	uint32 i;
+	pd_t *pd;
+
+	base_address = 0x06000000;
+	pd = (pd_t *) base_address;
+
+	// initialize the page directory for system processes by setting present bits to 0
+	for(i=0; i<1024; i++) {
+		pd[i].pd_pres = 0;
+	}
+
+	// assign first 8 entries of PD to XINU_AREA data
+	for(i=0; i<0x02000000; )
 }
