@@ -247,9 +247,11 @@ int32	delay(int n)
 
 void 	initialize_page_table()
 {
-	char* base_address;
-	uint32 i;
+	unsigned int base_address;
+	uint32 i, j;
+	uint32 virtual_address;
 	pd_t *pd;
+	pt_t *pt;
 
 	base_address = PAGE_DIR_ADDR_START;
 	pd = (pd_t *) base_address;
@@ -265,14 +267,21 @@ void 	initialize_page_table()
         pd[i].pd_mbz = 0;
         pd[i].pd_fmb = 0;
         pd[i].pd_global = 0;
-        pd[i].pd_avail[0] = 0;
-        pd[i].pd_avail[1] = 0;
-        pd[i].pd_avail[2] = 0;
+        pd[i].pd_avail = 0;
         pd[i].pd_base = 0;
 	}
 
 	// assign first 8 entries of PD to XINU_AREA data
-	for(i=0; i<XINU_PAGES*PAGE_SIZE; i += PAGE_SIZE;) {
+	for(i=0; i<8; i ++) {
+		base_address = base_address + PAGE_SIZE;
+		pd[i].pd_base = (base_address >> 12) & 0xFFFFF;
+		pt = (pt_t *) base_address;
 
+		// assign each PTE to a physical frame of XINU_AREA data
+		for(j=0; j<1024; j++) {
+			pt[j].pt_pres = 1;
+			pt[j].pt_write = 1;
+			pt[j].pt_avail = 1; // set the pt_avail from 000 to 001
+		}
     }
 }
