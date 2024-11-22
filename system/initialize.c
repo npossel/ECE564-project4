@@ -247,13 +247,19 @@ int32	delay(int n)
 
 void 	initialize_page_table()
 {
+	// ended up setting this to unsigned int. Not sure if it NEEDS to be char *, but 
+	// I am not able to do the bit shift if it is the char * type. Soooooo decided to
+	// make it int to allow for bit shift.
 	unsigned int base_address;
+	unsigned int pt_base_address;
+	unsigned int cr3;
 	uint32 i, j;
 	uint32 virtual_address;
 	pd_t *pd;
 	pt_t *pt;
 
 	base_address = PAGE_DIR_ADDR_START;
+	cr3 = base_address;
 	pd = (pd_t *) base_address;
 
 	// initialize the page directory for system processes by setting present bits to 0
@@ -271,6 +277,8 @@ void 	initialize_page_table()
         pd[i].pd_base = 0;
 	}
 
+	pt_base_address = 0;
+
 	// assign first 8 entries of PD to XINU_AREA data
 	for(i=0; i<8; i ++) {
 		base_address = base_address + PAGE_SIZE;
@@ -282,6 +290,26 @@ void 	initialize_page_table()
 			pt[j].pt_pres = 1;
 			pt[j].pt_write = 1;
 			pt[j].pt_avail = 1; // set the pt_avail from 000 to 001
+			pt[j].pt_base = pt_base_address;
+
+			pt_base_address = pt_base_address + PAGE_SIZE;
 		}
     }
+
+	// assign 9th PDE to store the PT_AREA data
+	base_address = base_address + PAGE_SIZE;
+	pd[i].pd_base = (base_address >> 12) & 0xFFFFF;
+	pt = (pt_t *) base_address;
+
+	// assign each PTE to a physical frame of PT_AREA data
+	for(j=0; j<1024; j++) {
+		pt[j].pt_pres = 1;
+		pt[j].pt_write = 1;
+		pt[j].pt_avail = 1; // set the pt_avail from 000 to 001
+		pt[j].pt_base = pt_base_address;
+
+		pt_base_address = pt_base_address + PAGE_SIZE;
+	}
+
+	write_cr3(cr3);
 }
