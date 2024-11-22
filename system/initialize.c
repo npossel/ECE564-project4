@@ -252,15 +252,21 @@ void 	initialize_page_table()
 	// make it int to allow for bit shift.
 	unsigned int base_address;
 	unsigned int pt_base_address;
-	unsigned int cr3;
+	char *address;
+	unsigned long cr3;
+	unsigned long cr3_read_val;
+	unsigned long cr3_write_val;
 	uint32 i, j;
-	uint32 virtual_address;
+	uint32 pd_entries;
 	pd_t *pd;
 	pt_t *pt;
+	intmask	mask;
 
 	base_address = PAGE_DIR_ADDR_START;
+	address = (char *)base_address;
+	printf("\nbase address for PD: %p", address);
 	cr3 = base_address;
-	pd = (pd_t *) base_address;
+	pd = (pd_t *) address;
 
 	// initialize the page directory for system processes by setting present bits to 0
 	for(i=0; i<1024; i++) {
@@ -279,37 +285,51 @@ void 	initialize_page_table()
 
 	pt_base_address = 0;
 
-	// assign first 8 entries of PD to XINU_AREA data
-	for(i=0; i<8; i ++) {
+	// Since PD for system processes must cover all areas, add all area sizes (in frames) and divide
+	// by 1024 since each PDE points to a PT page of 1024.
+	pd_entries = (XINU_PAGES+MAX_FFS_SIZE+MAX_PT_SIZE)/1024;
+	printf("\nNumber of PD entries to initialize: %d", pd_entries);
+
+	// assign first XINU_AREA, FFS_AREA, and PT_AREA to PD
+	for(i=0; i<pd_entries; i++) {
 		base_address = base_address + PAGE_SIZE;
 		pd[i].pd_base = (base_address >> 12) & 0xFFFFF;
-		pt = (pt_t *) base_address;
+		pd[i].pd_pres = 1;
+		pd[i].pd_pwt = 1;
+		pd[i].pd_pcd = 1;
+		pd[i].pd_acc = 1;
+		pd[i].pd_avail = 1; // set pd_avail from 000 to 001
+		address = (char *)base_address;
 
-		// assign each PTE to a physical frame of XINU_AREA data
+		printf("\nEntry %d stored base: %d", i, pd[i].pd_base);
+		printf("\nbase address for PT page: %p", address);
+
+		pt = (pt_t *) address;
+
+		// assign each PTE to a physical frame of the areas
 		for(j=0; j<1024; j++) {
 			pt[j].pt_pres = 1;
 			pt[j].pt_write = 1;
+			pt[j].pt_user = 0;
+			pt[j].pt_pwt = 1;
+			pt[j].pt_pcd = 1;
+			pt[j].pt_acc = 1;
+			pt[j].pt_dirty = 0;
+			pt[j].pt_mbz = 0;
+			pt[j].pt_global = 0;
 			pt[j].pt_avail = 1; // set the pt_avail from 000 to 001
-			pt[j].pt_base = pt_base_address;
+			pt[j].pt_base = (pt_base_address >> 12) & 0xFFFFF;
 
 			pt_base_address = pt_base_address + PAGE_SIZE;
 		}
     }
 
-	// assign 9th PDE to store the PT_AREA data
-	base_address = base_address + PAGE_SIZE;
-	pd[i].pd_base = (base_address >> 12) & 0xFFFFF;
-	pt = (pt_t *) base_address;
+	mask = disable();
+	cr3_read_val = read_cr3();
+	cr3_read_val = cr3_read_val & 0x00000FFF;
+	cr3 = cr3 & 0xFFFFF000;
+	cr3_write_val = cr3 | cr3_read_val;
 
-	// assign each PTE to a physical frame of PT_AREA data
-	for(j=0; j<1024; j++) {
-		pt[j].pt_pres = 1;
-		pt[j].pt_write = 1;
-		pt[j].pt_avail = 1; // set the pt_avail from 000 to 001
-		pt[j].pt_base = pt_base_address;
-
-		pt_base_address = pt_base_address + PAGE_SIZE;
-	}
-
-	write_cr3(cr3);
+	write_cr3(cr3_write_val);
+	restore(mask);
 }

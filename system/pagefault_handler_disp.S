@@ -10,7 +10,7 @@ pagefault_handler_disp:
 		pushal			# Save registers
 		cli			# Disable further interrupts
 		
-		call	pagefault_handler	# Call high level handler
+		/* call	pagefault_handler	# Call high level handler */
 
 		sti			# Restore interrupt status
 		popal			# Restore registers
