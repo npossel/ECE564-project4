@@ -261,10 +261,15 @@ void 	initialize_page_table()
 	pd_t *pd;
 	pt_t *pt;
 	intmask	mask;
+	struct	memblk	*memptr;
+    for(memptr = memlist.mnext; memptr != NULL; memptr = memptr->mnext){
+        kprintf("Free list block: %p\n", &memptr);
+        kprintf("Length :%d\n", memptr->mlength);
+    }
 
 	base_address = PAGE_DIR_ADDR_START;
 	address = (char *)base_address;
-	printf("\nbase address for PD: %p", address);
+	kprintf("\nbase address for PD: %x", address);
 	cr3 = base_address;
 	pd = (pd_t *) address;
 
@@ -288,7 +293,7 @@ void 	initialize_page_table()
 	// Since PD for system processes must cover all areas, add all area sizes (in frames) and divide
 	// by 1024 since each PDE points to a PT page of 1024.
 	pd_entries = (XINU_PAGES+MAX_FFS_SIZE+MAX_PT_SIZE)/1024;
-	printf("\nNumber of PD entries to initialize: %d", pd_entries);
+	kprintf("\nNumber of PD entries to initialize: %d", pd_entries);
 
 	// assign first XINU_AREA, FFS_AREA, and PT_AREA to PD
 	for(i=0; i<pd_entries; i++) {
@@ -301,8 +306,8 @@ void 	initialize_page_table()
 		pd[i].pd_avail = 1; // set pd_avail from 000 to 001
 		address = (char *)base_address;
 
-		printf("\nEntry %d stored base: %d", i, pd[i].pd_base);
-		printf("\nbase address for PT page: %p", address);
+		kprintf("\nEntry %d stored base: %x", i, pd[i].pd_base);
+		kprintf("\nbase address for PT page: %x", address);
 
 		pt = (pt_t *) address;
 
