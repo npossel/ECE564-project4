@@ -262,6 +262,7 @@ void 	initialize_page_table()
 	pt_t *pt;
 	intmask	mask;
 	struct	memblk	*memptr;
+	
     for(memptr = memlist.mnext; memptr != NULL; memptr = memptr->mnext){
         kprintf("Free list block: %p\n", &memptr);
         kprintf("Length :%d\n", memptr->mlength);
@@ -284,7 +285,7 @@ void 	initialize_page_table()
         pd[i].pd_mbz = 0;
         pd[i].pd_fmb = 0;
         pd[i].pd_global = 0;
-        pd[i].pd_avail = 0;
+        pd[i].pd_avail = 2; // set pd_avail from 000 to 010
         pd[i].pd_base = 0;
 	}
 
@@ -303,7 +304,7 @@ void 	initialize_page_table()
 		pd[i].pd_pwt = 1;
 		pd[i].pd_pcd = 1;
 		pd[i].pd_acc = 1;
-		pd[i].pd_avail = 1; // set pd_avail from 000 to 001
+		pd[i].pd_avail = 3; // set pd_avail from 010 to 011
 		address = (char *)base_address;
 
 		kprintf("\nEntry %d stored base: %x", i, pd[i].pd_base);
@@ -322,7 +323,7 @@ void 	initialize_page_table()
 			pt[j].pt_dirty = 0;
 			pt[j].pt_mbz = 0;
 			pt[j].pt_global = 0;
-			pt[j].pt_avail = 1; // set the pt_avail from 000 to 001
+			pt[j].pt_avail = 3; // set the pt_avail from 000 to 011
 			pt[j].pt_base = (pt_base_address >> 12) & 0xFFFFF;
 
 			pt_base_address = pt_base_address + PAGE_SIZE;

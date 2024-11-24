@@ -1,14 +1,15 @@
-/* create.c - create, newpid */
+/* vcreate.c - vcreate*/
 
 #include <xinu.h>
 
 int newpid();
+local unsigned long initialize_user_page_dir();
 
 /*------------------------------------------------------------------------
- *  create  -  Create a process to start running a function on x86
+ *  vcreate  -  Create a user process to start running a function on x86
  *------------------------------------------------------------------------
  */
-pid32	create(
+pid32	vcreate(
 	  void		*funcaddr,	/* Address of the function	*/
 	  uint32	ssize,		/* Stack size in bytes		*/
 	  pri16		priority,	/* Process priority > 0		*/
@@ -50,6 +51,7 @@ pid32	create(
 	prptr->prparent = (pid32)getpid();
 	prptr->prhasmsg = FALSE;
 	prptr->page_addr = PAGE_DIR_ADDR_START;
+    prptr->page_addr = initialize_user_page_dir();
 
 	/* Set up stdin, stdout, and stderr descriptors for the shell	*/
 	prptr->prdesc[0] = CONSOLE;
@@ -98,25 +100,19 @@ pid32	create(
 	return pid;
 }
 
-/*------------------------------------------------------------------------
- *  newpid  -  Obtain a new (free) process ID
- *------------------------------------------------------------------------
- */
-pid32	newpid(void)
+local   unsigned long    initialize_user_page_dir(void)
 {
-	uint32	i;			/* Iterate through all processes*/
-	static	pid32 nextpid = 1;	/* Position in table to try or	*/
-					/*   one beyond end of table	*/
-
-	/* Check all NPROC slots */
-
-	for (i = 0; i < NPROC; i++) {
-		nextpid %= NPROC;	/* Wrap around to beginning */
-		if (proctab[nextpid].prstate == PR_FREE) {
-			return nextpid++;
-		} else {
-			nextpid++;
-		}
-	}
-	return (pid32) SYSERR;
+    unsigned int base_address;
+    bool8 loop;
+	pt_t *pt;
+	char *address;
+    
+	base_address = PAGE_DIR_ADDR_START;
+	loop = TRUE;
+    // while(loop) {
+        address = (char *)base_address;
+		pt = (pt_t *) address;
+		kprintf("\nValue of avail bits: %x", pt[0].pt_avail);
+    // }
+	return 0;
 }
