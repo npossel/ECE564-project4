@@ -50,7 +50,6 @@ pid32	vcreate(
 	prptr->prsem = -1;
 	prptr->prparent = (pid32)getpid();
 	prptr->prhasmsg = FALSE;
-	prptr->page_addr = PAGE_DIR_ADDR_START;
     prptr->page_addr = initialize_user_page_dir();
 
 	/* Set up stdin, stdout, and stderr descriptors for the shell	*/
@@ -103,16 +102,63 @@ pid32	vcreate(
 local   unsigned long    initialize_user_page_dir(void)
 {
     unsigned int base_address;
-    bool8 loop;
-	pt_t *pt;
+	unsigned int xinu_base_address;
+	unsigned long cr3;
+	unsigned long cr3_read_val;
+	unsigned long cr3_write_val;
+	pd_t *pd;
 	char *address;
+	uint32 i;
+	uint32 pd_entries;
+	intmask	mask;
     
 	base_address = PAGE_DIR_ADDR_START;
-	loop = TRUE;
-    // while(loop) {
+    while(TRUE) {
         address = (char *)base_address;
-		pt = (pt_t *) address;
-		kprintf("\nValue of avail bits: %x", pt[0].pt_avail);
-    // }
+		pd = (pd_t *) address;
+		// kprintf("\nValue of avail bits: %x", pd[0].pd_avail);
+		if(pd[0].pd_avail & (1<<1)) {
+			// kprintf("\nThis spot is taken. Current Spot: %x", base_address);
+			base_address = base_address + PAGE_SIZE;
+		} else {
+			// kprintf("\nExiting loop. Current Spot: %x", base_address);
+			for(i=0; i<1024; i++) {
+				pd[i].pd_pres = 0;
+				pd[i].pd_write = 1;
+				pd[i].pd_user = 0;
+				pd[i].pd_pwt = 0;
+				pd[i].pd_pcd = 0;
+				pd[i].pd_acc = 0;
+				pd[i].pd_mbz = 0;
+				pd[i].pd_fmb = 0;
+				pd[i].pd_global = 0;
+				pd[i].pd_avail = 2; // set pd_avail from 000 to 010
+				pd[i].pd_base = 0;
+			}
+
+			pd_entries = XINU_PAGES/1024;
+			xinu_base_address = PAGE_DIR_ADDR_START;
+			for(i=0; i<pd_entries; i++) {
+				xinu_base_address = xinu_base_address + PAGE_SIZE;
+				pd[i].pd_base = (xinu_base_address >> 12) & 0xFFFFF;
+				// kprintf("\nwriting base: %x", xinu_base_address);
+				pd[i].pd_pres = 1;
+				pd[i].pd_pwt = 1;
+				pd[i].pd_pcd = 1;
+				pd[i].pd_acc = 1;
+				pd[i].pd_avail = 3; // set pd_avail from 010 to 011
+			}
+			// mask = disable();
+			// cr3_read_val = read_cr3();
+			// cr3_read_val = cr3_read_val & 0x00000FFF;
+			// cr3 = base_address & 0xFFFFF000;
+			// cr3_write_val = cr3 | cr3_read_val;
+			// kprintf("\nWriting cr3: %x\n", cr3_write_val);
+
+			// write_cr3(cr3_write_val);
+			// restore(mask);
+			return base_address;
+		}
+    }
 	return 0;
 }
