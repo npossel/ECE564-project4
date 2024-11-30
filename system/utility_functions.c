@@ -57,6 +57,33 @@ uint32 allocated_virtual_pages(pid32 pid){
 }
 
 uint32 used_ffs_frames(pid32 pid){
-    return 0;
+    struct procent *prptr;
+    unsigned long cr3;
+    char *address;
+    pt_t *pt;
+    pd_t *pd;
+    uint32 i, j;
+    uint32 allocated;
+
+    allocated = 0;
+    prptr = &proctab[pid];
+    cr3 = prptr->page_addr;
+    address = (char *)cr3;
+    pd = (pd_t *)address;
+
+    for(i=0; i<1024; i++) {
+        if(pd[i].pd_pres==1 && FFS_START<=(pd[i].pd_base<<12) && PAGE_DIR_ADDR_START>(pd[i].pd_base<<12)) {
+            cr3 = pd[i].pd_base << 12;
+            address = (char *)cr3;
+            pt = (pt_t *)address;
+
+            for(j=0; j<1024; j++) {
+                if(pt[j].pt_avail & 1) {
+                    allocated++;
+                }
+            }
+        }
+    }
+    return allocated;
 }
 
