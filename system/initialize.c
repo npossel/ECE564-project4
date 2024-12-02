@@ -228,6 +228,9 @@ static	void	sysinit()
 	initialize_page_table();
 	enable_paging();
 
+	// /* Page fault handler */
+	// set_evec(14, (uint32)pagefault_handler_disp);
+
 	return;
 }
 
@@ -275,6 +278,7 @@ void 	initialize_page_table()
 	pd = (pd_t *) address;
 
 	// initialize the page directory for system processes by setting present bits to 0
+	// avail bits are as follows: [2] unused [1] does this page exist? [0] valid bit
 	for(i=0; i<1024; i++) {
 		pd[i].pd_pres = 0;
 		pd[i].pd_write = 1;

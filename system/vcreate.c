@@ -25,8 +25,19 @@ pid32	vcreate(
 	int32		i;
 	uint32		*a;		/* Points to list of args	*/
 	uint32		*saddr;		/* Stack address		*/
+	unsigned long cr3;
+	unsigned long cr3_read_val;
+	unsigned long cr3_write_val;
 
 	mask = disable();
+
+	// Set CR3 to system PD
+	cr3_read_val = read_cr3();
+	cr3_read_val = cr3_read_val & 0x00000FFF;
+	cr3 = PAGE_DIR_ADDR_START & 0xFFFFF000;
+	cr3_write_val = cr3 | cr3_read_val;
+	write_cr3(cr3_write_val);
+
 	if (ssize < MINSTK)
 		ssize = MINSTK;
 	ssize = (uint32) roundmb(ssize);
@@ -95,7 +106,19 @@ pid32	vcreate(
 	*--saddr = 0;			/* %esi */
 	*--saddr = 0;			/* %edi */
 	*pushsp = (unsigned long) (prptr->prstkptr = (char *)saddr);
+
+	cr3_read_val = read_cr3();
+	cr3_read_val = cr3_read_val & 0x00000FFF;
+	cr3 = prptr->page_addr & 0xFFFFF000;
+	cr3_write_val = cr3 | cr3_read_val;
+	write_cr3(cr3_write_val);
+
+	// pd_t *pd;
+	// pd = (pd_t *)prptr->page_addr;
+	// kprintf("\npd[0] base and present: %x, %d", pd[0].pd_base, pd[0].pd_pres);
+
 	restore(mask);
+	kprintf("\nCurrent CR3: %x", cr3_write_val);
 	return pid;
 }
 
@@ -103,25 +126,19 @@ local   unsigned long    initialize_user_page_dir(void)
 {
     unsigned int base_address;
 	unsigned int xinu_base_address;
-	unsigned long cr3;
-	unsigned long cr3_read_val;
-	unsigned long cr3_write_val;
 	pd_t *pd;
 	char *address;
 	uint32 i;
 	uint32 pd_entries;
-	intmask	mask;
     
 	base_address = PAGE_DIR_ADDR_START;
+	// change to not be infinite
     while(TRUE) {
         address = (char *)base_address;
 		pd = (pd_t *) address;
-		// kprintf("\nValue of avail bits: %x", pd[0].pd_avail);
 		if(pd[0].pd_avail & (1<<1)) {
-			// kprintf("\nThis spot is taken. Current Spot: %x", base_address);
 			base_address = base_address + PAGE_SIZE;
 		} else {
-			// kprintf("\nExiting loop. Current Spot: %x", base_address);
 			for(i=0; i<1024; i++) {
 				pd[i].pd_pres = 0;
 				pd[i].pd_write = 1;
@@ -141,24 +158,13 @@ local   unsigned long    initialize_user_page_dir(void)
 			for(i=0; i<pd_entries; i++) {
 				xinu_base_address = xinu_base_address + PAGE_SIZE;
 				pd[i].pd_base = (xinu_base_address >> 12) & 0xFFFFF;
-				// kprintf("\nwriting base: %x", xinu_base_address);
 				pd[i].pd_pres = 1;
 				pd[i].pd_pwt = 1;
 				pd[i].pd_pcd = 1;
 				pd[i].pd_acc = 1;
 				pd[i].pd_avail = 3; // set pd_avail from 010 to 011
 			}
-			// mask = disable();
-			// cr3_read_val = read_cr3();
-			// cr3_read_val = cr3_read_val & 0x00000FFF;
-			// cr3 = base_address & 0xFFFFF000;
-			// cr3_write_val = cr3 | cr3_read_val;
-			// kprintf("\nWriting cr3: %x\n", cr3_write_val);
-
-			// write_cr3(cr3_write_val);
-			// restore(mask);
 			return base_address;
 		}
     }
-	return 0;
 }
