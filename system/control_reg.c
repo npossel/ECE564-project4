@@ -137,7 +137,6 @@ void write_cr3(unsigned long n) {
 
   intmask mask;
 
-  kprintf("\nwriting %x to cr3", n);
   mask = disable();
 
   tmp = n;

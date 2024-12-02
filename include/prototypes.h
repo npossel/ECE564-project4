@@ -610,6 +610,12 @@ extern	void	userret(void);
 /* in file vcreate.c */
 extern	pid32	vcreate(void *, uint32, pri16, char *, uint32, ...);
 
+/* in file vmalloc.c */
+extern  char*   vamlloc(uint32);
+
+/* in file vfree.c */
+extern syscall  vfree(char*, uint32);
+
 /* in file wait.c */
 extern	syscall	wait(sid32);
 

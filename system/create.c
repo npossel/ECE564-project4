@@ -40,6 +40,7 @@ pid32	create(
 
 	/* Initialize process table entry for new process */
 	prptr->prstate = PR_SUSP;	/* Initial state is suspended	*/
+	prptr->page_addr = PAGE_DIR_ADDR_START;
 	prptr->prprio = priority;
 	prptr->prstkbase = (char *)saddr;
 	prptr->prstklen = ssize;
@@ -49,7 +50,6 @@ pid32	create(
 	prptr->prsem = -1;
 	prptr->prparent = (pid32)getpid();
 	prptr->prhasmsg = FALSE;
-	prptr->page_addr = PAGE_DIR_ADDR_START;
 
 	/* Set up stdin, stdout, and stderr descriptors for the shell	*/
 	prptr->prdesc[0] = CONSOLE;

@@ -21,7 +21,6 @@ syscall	kill(
 	pt_t *pt;
     pd_t *pd;
 
-	kprintf("\nkilling process! %d", pid);
 	mask = disable();
 
 	cr3_read_val = read_cr3();
@@ -105,6 +104,14 @@ syscall	kill(
 		pd[i].pd_base = 0;
 	}
 
+	prptr = &proctab[currpid];
+	cr3_read_val = read_cr3();
+	cr3_read_val = cr3_read_val & 0x00000FFF;
+	cr3 = prptr->page_addr & 0xFFFFF000;
+	cr3_write_val = cr3 | cr3_read_val;
+	write_cr3(cr3_write_val);
+
 	restore(mask);
+
 	return OK;
 }

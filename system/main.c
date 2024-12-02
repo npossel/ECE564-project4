@@ -3,7 +3,7 @@
 /* NOTE: set QUANTUM to 10ms */
 
 #define TEST1
-//#define TEST2
+#define TEST2
 //#define TEST3
 //#define TEST4
 

@@ -14,7 +14,7 @@ extern	void main(void);	/* Main is the first process created	*/
 static	void sysinit(); 	/* Internal system initialization	*/
 extern	void meminit(void);	/* Initializes the free memory list	*/
 local	process startup(void);	/* Process to finish startup tasks	*/
-local	void initialize_page_table(void);	/* Initializes the page table used by system processes	*/
+local	unsigned long initialize_page_table(void);	/* Initializes the page table used by system processes	*/
 
 /* Declarations of major kernel variables */
 
@@ -225,7 +225,7 @@ static	void	sysinit()
 	}
 
 	/* Enable paging */
-	initialize_page_table();
+	prptr->page_addr = initialize_page_table();
 	enable_paging();
 
 	// /* Page fault handler */
@@ -248,7 +248,7 @@ int32	delay(int n)
 	return OK;
 }
 
-void 	initialize_page_table()
+unsigned long 	initialize_page_table()
 {
 	// ended up setting this to unsigned int. Not sure if it NEEDS to be char *, but 
 	// I am not able to do the bit shift if it is the char * type. Soooooo decided to
@@ -343,4 +343,5 @@ void 	initialize_page_table()
 
 	write_cr3(cr3_write_val);
 	restore(mask);
+	return cr3_write_val;
 }

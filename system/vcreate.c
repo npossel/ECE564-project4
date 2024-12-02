@@ -111,18 +111,15 @@ pid32	vcreate(
 	// In question @212 prof mentions ending the system function (ie vcreate) with the cr3 being changed to what called said function. 
 	// That being said, since the process being created is NOT calling this function, I can only assume cr3 is set to the cr3 for main.
 	// I am not sure when the cr3 should be set to the user process cr3, we will have to ask prof.
+
+	prptr = &proctab[currpid];
 	cr3_read_val = read_cr3();
 	cr3_read_val = cr3_read_val & 0x00000FFF;
 	cr3 = prptr->page_addr & 0xFFFFF000;
 	cr3_write_val = cr3 | cr3_read_val;
 	write_cr3(cr3_write_val);
 
-	// pd_t *pd;
-	// pd = (pd_t *)prptr->page_addr;
-	// kprintf("\npd[0] base and present: %x, %d", pd[0].pd_base, pd[0].pd_pres);
-
 	restore(mask);
-	kprintf("\nCurrent CR3: %x", cr3_write_val);
 	return pid;
 }
 
