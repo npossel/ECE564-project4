@@ -12,16 +12,13 @@ void	resched(void)		/* Assumes interrupts are disabled	*/
 {
 	struct procent *ptold;	/* Ptr to table entry for old process	*/
 	struct procent *ptnew;	/* Ptr to table entry for new process	*/
-	unsigned long cr3;
 	unsigned long cr3_read_val;
 	unsigned long cr3_write_val;
 	intmask	mask;
 
 	mask = disable;
 	cr3_read_val = read_cr3();
-	cr3_read_val = cr3_read_val & 0x00000FFF;
-	cr3 = PAGE_DIR_ADDR_START & 0xFFFFF000;
-	cr3_write_val = cr3 | cr3_read_val;
+	cr3_write_val = (PAGE_DIR_ADDR_START & 0xFFFFF000) | (cr3_read_val & 0x00000FFF);
 	write_cr3(cr3_write_val);
 	restore(mask);
 
@@ -54,9 +51,7 @@ void	resched(void)		/* Assumes interrupts are disabled	*/
 
 	mask = disable;
 	cr3_read_val = read_cr3();
-	cr3_read_val = cr3_read_val & 0x00000FFF;
-	cr3 = ptnew->page_addr & 0xFFFFF000;
-	cr3_write_val = cr3 | cr3_read_val;
+	cr3_write_val = (ptnew->page_addr & 0xFFFFF000) | (cr3_read_val & 0x00000FFF);
 	write_cr3(cr3_write_val);
 	restore(mask);
 	

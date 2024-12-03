@@ -228,8 +228,8 @@ static	void	sysinit()
 	prptr->page_addr = initialize_page_table();
 	enable_paging();
 
-	// /* Page fault handler */
-	// set_evec(14, (uint32)pagefault_handler_disp);
+	/* Page fault handler */
+	set_evec(14, (uint32)pagefault_handler_disp);
 
 	return;
 }
@@ -337,10 +337,7 @@ unsigned long 	initialize_page_table()
 
 	mask = disable();
 	cr3_read_val = read_cr3();
-	cr3_read_val = cr3_read_val & 0x00000FFF;
-	cr3 = cr3 & 0xFFFFF000;
-	cr3_write_val = cr3 | cr3_read_val;
-
+	cr3_write_val = (cr3 & 0xFFFFF000) | (cr3_read_val & 0x00000FFF);
 	write_cr3(cr3_write_val);
 	restore(mask);
 	return cr3_write_val;

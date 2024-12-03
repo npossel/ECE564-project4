@@ -7,17 +7,14 @@ uint32 free_ffs_pages(){
     uint32 free;
     pt_t *pt;
     char *address;
-    unsigned long cr3;
 	unsigned long cr3_read_val;
 	unsigned long cr3_write_val;
 	intmask	mask;
 
     // set CR3 to the system PD
-    mask = disable;
+    mask = disable();
 	cr3_read_val = read_cr3();
-	cr3_read_val = cr3_read_val & 0x00000FFF;
-	cr3 = PAGE_DIR_ADDR_START & 0xFFFFF000;
-	cr3_write_val = cr3 | cr3_read_val;
+	cr3_write_val = (PAGE_DIR_ADDR_START & 0xFFFFF000) | (cr3_read_val & 0x00000FFF);
 	write_cr3(cr3_write_val);
 	restore(mask);
 
@@ -33,11 +30,11 @@ uint32 free_ffs_pages(){
     }
 
     prptr = &proctab[currpid];
+	mask = disable();
 	cr3_read_val = read_cr3();
-	cr3_read_val = cr3_read_val & 0x00000FFF;
-	cr3 = prptr->page_addr & 0xFFFFF000;
-	cr3_write_val = cr3 | cr3_read_val;
+	cr3_write_val = (prptr->page_addr & 0xFFFFF000) | (cr3_read_val & 0x00000FFF);
 	write_cr3(cr3_write_val);
+	restore(mask);
 
     return free;
 }
@@ -54,24 +51,21 @@ uint32 allocated_virtual_pages(pid32 pid){
     pd_t *pd;
     uint32 i, j;
     uint32 allocated;
-    unsigned long cr3;
 	unsigned long cr3_read_val;
 	unsigned long cr3_write_val;
 	intmask	mask;
 
     // set CR3 to the system PD
-    mask = disable;
+    mask = disable();
 	cr3_read_val = read_cr3();
-	cr3_read_val = cr3_read_val & 0x00000FFF;
-	cr3 = PAGE_DIR_ADDR_START & 0xFFFFF000;
-	cr3_write_val = cr3 | cr3_read_val;
+	cr3_write_val = (PAGE_DIR_ADDR_START & 0xFFFFF000) | (cr3_read_val & 0x00000FFF);
 	write_cr3(cr3_write_val);
 	restore(mask);
 
     allocated = 0;
     prptr = &proctab[pid];
     base_address = prptr->page_addr;
-    address = (char *)cr3;
+    address = (char *)base_address;
     pd = (pd_t *)address;
 
     for(i=0; i<1024; i++) {
@@ -89,11 +83,11 @@ uint32 allocated_virtual_pages(pid32 pid){
     }
 
     prptr = &proctab[currpid];
+	mask = disable();
 	cr3_read_val = read_cr3();
-	cr3_read_val = cr3_read_val & 0x00000FFF;
-	cr3 = prptr->page_addr & 0xFFFFF000;
-	cr3_write_val = cr3 | cr3_read_val;
+	cr3_write_val = (prptr->page_addr & 0xFFFFF000) | (cr3_read_val & 0x00000FFF);
 	write_cr3(cr3_write_val);
+	restore(mask);
     
     return allocated;
 }
@@ -104,36 +98,34 @@ uint32 used_ffs_frames(pid32 pid){
     char *address;
     pt_t *pt;
     pd_t *pd;
-    uint32 i, j;
+    uint32 i, j, start;
     uint32 allocated;
-    unsigned long cr3;
 	unsigned long cr3_read_val;
 	unsigned long cr3_write_val;
 	intmask	mask;
 
     // set CR3 to the system PD
-    mask = disable;
+    mask = disable();
 	cr3_read_val = read_cr3();
-	cr3_read_val = cr3_read_val & 0x00000FFF;
-	cr3 = PAGE_DIR_ADDR_START & 0xFFFFF000;
-	cr3_write_val = cr3 | cr3_read_val;
+	cr3_write_val = (PAGE_DIR_ADDR_START & 0xFFFFF000) | (cr3_read_val & 0x00000FFF);
 	write_cr3(cr3_write_val);
 	restore(mask);
 
     allocated = 0;
     prptr = &proctab[pid];
     base_address = prptr->page_addr;
-    address = (char *)cr3;
+    address = (char *)base_address;
     pd = (pd_t *)address;
+    start = XINU_PAGES/MAX_PT_SIZE;
 
-    for(i=0; i<1024; i++) {
-        if(pd[i].pd_pres==1 && FFS_START<=(pd[i].pd_base<<12) && PAGE_DIR_ADDR_START>(pd[i].pd_base<<12)) {
+    for(i=start; i<1024; i++) {
+        if(pd[i].pd_pres==1) {
             base_address = pd[i].pd_base << 12;
             address = (char *)base_address;
             pt = (pt_t *)address;
 
             for(j=0; j<1024; j++) {
-                if(pt[j].pt_avail & 1) {
+                if(pt[j].pt_pres == 1) {
                     allocated++;
                 }
             }
@@ -141,11 +133,11 @@ uint32 used_ffs_frames(pid32 pid){
     }
 
     prptr = &proctab[currpid];
+    mask = disable();
 	cr3_read_val = read_cr3();
-	cr3_read_val = cr3_read_val & 0x00000FFF;
-	cr3 = prptr->page_addr & 0xFFFFF000;
-	cr3_write_val = cr3 | cr3_read_val;
+	cr3_write_val = (prptr->page_addr & 0xFFFFF000) | (cr3_read_val & 0x00000FFF);
 	write_cr3(cr3_write_val);
+    restore(mask);
 
     return allocated;
 }

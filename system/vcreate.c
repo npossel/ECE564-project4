@@ -25,7 +25,6 @@ pid32	vcreate(
 	int32		i;
 	uint32		*a;		/* Points to list of args	*/
 	uint32		*saddr;		/* Stack address		*/
-	unsigned long cr3;
 	unsigned long cr3_read_val;
 	unsigned long cr3_write_val;
 
@@ -33,9 +32,7 @@ pid32	vcreate(
 
 	// Set CR3 to system PD
 	cr3_read_val = read_cr3();
-	cr3_read_val = cr3_read_val & 0x00000FFF;
-	cr3 = PAGE_DIR_ADDR_START & 0xFFFFF000;
-	cr3_write_val = cr3 | cr3_read_val;
+	cr3_write_val = (PAGE_DIR_ADDR_START & 0xFFFFF000) | (cr3_read_val & 0x00000FFF);
 	write_cr3(cr3_write_val);
 
 	if (ssize < MINSTK)
@@ -114,9 +111,7 @@ pid32	vcreate(
 
 	prptr = &proctab[currpid];
 	cr3_read_val = read_cr3();
-	cr3_read_val = cr3_read_val & 0x00000FFF;
-	cr3 = prptr->page_addr & 0xFFFFF000;
-	cr3_write_val = cr3 | cr3_read_val;
+	cr3_write_val = (prptr->page_addr & 0xFFFFF000) | (cr3_read_val & 0x00000FFF);
 	write_cr3(cr3_write_val);
 
 	restore(mask);
@@ -165,6 +160,7 @@ local   unsigned long    initialize_user_page_dir(void)
 				pd[i].pd_acc = 1;
 				pd[i].pd_avail = 3; // set pd_avail from 010 to 011
 			}
+			// kprintf("creating process with base %x\n", base_address);
 			return base_address;
 		}
     }

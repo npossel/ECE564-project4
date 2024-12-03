@@ -15,8 +15,7 @@ char* vmalloc (uint32 nbytes){
     pt_t *pt; // page table addr
     uint32 frames; // number of frames needed
     unsigned int base_addr; // base addr of the page dir entry
-    unsigned int pt_base_addr; // base addr of the page table entry
-    unsigned int starting_pt_addr; // what to return
+    unsigned int va_pt_addr; // calculated virtual address for the page table, also the return value
 
 
     mask = disable();
@@ -36,71 +35,76 @@ char* vmalloc (uint32 nbytes){
     addr = (char *)base_addr;
 
     pd = (pd_t *)addr;
+    // kprintf("user process base addr is %x\n", base_addr);
+
     while(i != MAX_PT_SIZE){
-
         if(pd[i].pd_pres == 0){
-            kprintf("pd[%d].pd_pres is 0\n", i);
-            addr = (char *)(pd[i-1].pd_base << 12); //grabbing the last PT base addr
-            pt = (pt_t *)addr;
-            starting_pt_addr = (pt[MAX_PT_SIZE-1].pt_base << 12);
-            kprintf("previous address for PT page: %x\n", starting_pt_addr);
+            for(base_addr = PAGE_DIR_ADDR_START; base_addr < PD_PT_AREA_END; base_addr += PAGE_SIZE){
+                addr = (char *)base_addr;
+                pt = (pt_t *) addr;
+                if(pt[0].pt_avail == 0){
+                    // kprintf("pt addr is %x\n", pt);
 
-            // allocate page dir entry
-            base_addr = (pd[i-1].pd_base << 12) + PAGE_SIZE;
-            pd[i].pd_pres = 1;
-            pd[i].pd_write = 1;
-            pd[i].pd_user = 0;
-            pd[i].pd_pwt = 1;
-            pd[i].pd_pcd = 1;
-            pd[i].pd_acc = 1;
-            pd[i].pd_mbz = 0;
-            pd[i].pd_fmb = 0;
-            pd[i].pd_global = 0;
-            pd[i].pd_avail = 3; // set pd_avail from 000 to 011
-            pd[i].pd_base = (base_addr >> 12) & 0xFFFFF;
+                    // allocate page dir entry
+                    pd[i].pd_pres = 1;
+                    pd[i].pd_write = 1;
+                    pd[i].pd_user = 0;
+                    pd[i].pd_pwt = 1;
+                    pd[i].pd_pcd = 1;
+                    pd[i].pd_acc = 1;
+                    pd[i].pd_mbz = 0;
+                    pd[i].pd_fmb = 0;
+                    pd[i].pd_global = 0;
+                    pd[i].pd_avail = 3;
+                    pd[i].pd_base = (base_addr >> 12) & 0xFFFFF;
+//                    // kprintf("pd[%d].pd_base is %x\n", i, pd[i].pd_base);
 
+                    for(j = 0; j < MAX_PT_SIZE; j++){
+                        pt[j].pt_pres = 0;
+                        pt[j].pt_write = 1;
+                        pt[j].pt_user = 0;
+                        pt[j].pt_pwt = 1;
+                        pt[j].pt_pcd = 1;
+                        pt[j].pt_acc = 1;
+                        pt[j].pt_dirty = 0;
+                        pt[j].pt_mbz = 0;
+                        pt[j].pt_global = 0;
+                        pt[j].pt_avail = 2;
+                        pt[j].pt_base = 0;
+                    }
+                    base_addr = PD_PT_AREA_END;
+                }
+            }
+
+            base_addr = (pd[i].pd_base << 12);
             addr = (char *)base_addr;
-            starting_pt_addr = starting_pt_addr + PAGE_SIZE;
-            pt_base_addr = starting_pt_addr;
-            kprintf("starting address for PT page: %x, base_addr is %x\n", starting_pt_addr, base_addr);
-
+            va_pt_addr = i * PAGE_SIZE * MAX_PT_SIZE;
             pt = (pt_t *) addr;
+            // kprintf("starting base address for PT page: %x, base_addr is %x, i is %d\n", va_pt_addr, base_addr, i);
+
             for(j = 0; j < frames; j++){
-                pt[j].pt_pres = 0;
-                pt[j].pt_write = 1;
-                pt[j].pt_user = 0;
-                pt[j].pt_pwt = 1;
-                pt[j].pt_pcd = 1;
-                pt[j].pt_acc = 1;
-                pt[j].pt_dirty = 0;
-                pt[j].pt_mbz = 0;
-                pt[j].pt_global = 0;
                 pt[j].pt_avail = 3;
-                pt[j].pt_base = (pt_base_addr >> 12) & 0xFFFFF;
-                kprintf("base address for PT page: %x, current addr %x\n", pt_base_addr, pt[j]);
-                pt_base_addr = pt_base_addr + PAGE_SIZE;
             }
             mask = disable();
             write_cr3(user_cr3);
             restore(mask);
-            return (char *)starting_pt_addr;
+            return (char *)va_pt_addr;
         }else{
             // for loop through page table
             // if i reach there is not enough space until the end, create a
             // new dir entry and continue allocating
-            kprintf("pd[%d].pd_pres is 1 right??\n", i);
             base_addr = (pd[i].pd_base << 12);
             addr = (char *)base_addr;
             pt = (pt_t *)addr;
-            kprintf("pt addr %x\n", pt[0]);
+            // kprintf("pt addr is %x\n", pt);
 
             for(j = 0; j < MAX_PT_SIZE; j++){
                 if(pt[j].pt_avail != 3){
-                    kprintf("pt[%d].pt_avail is %d\n", j, pt[j].pt_avail);
+//                    // kprintf("pt[%d].pt_avail is %d\n", j, pt[j].pt_avail);
                     counter = 0;
                     int next_index; // next index to start the page table search from
                     if(j + frames <= MAX_PT_SIZE){
-                        kprintf("%d + %d is <= %d\n", j, frames, MAX_PT_SIZE);
+//                        // kprintf("%d + %d is <= %d\n", j, frames, MAX_PT_SIZE);
                         for(k = 0; k < frames; k++){
                             if(pt[j+k].pt_avail != 3){
                                 counter++;
@@ -109,49 +113,27 @@ char* vmalloc (uint32 nbytes){
                             }
                         }
                         if(counter == frames){
-                            kprintf("%d is equal to %d\n", counter, frames);
-                            if(j == 0){
-                                //previous dir entry, last table
-                                addr = (char *)(pd[i-1].pd_base << 12); //grabbing the last PT base addr
-                                pt_t *temp_pt = (pt_t *)addr;
-                                starting_pt_addr = (temp_pt[MAX_PT_SIZE-1].pt_base << 12);
-                            }else{
-                                starting_pt_addr = (pt[j-1].pt_base << 12);
-                            }
-                            starting_pt_addr = starting_pt_addr + PAGE_SIZE;
-                            kprintf("starting address for PT page: %x\n", starting_pt_addr);
-                            pt_base_addr = starting_pt_addr;
+                            va_pt_addr = (i * PAGE_SIZE * MAX_PT_SIZE) + (PAGE_SIZE * j);
+                            // kprintf("starting address for PT page: %x\n", va_pt_addr);
                             for(k = 0; k < frames; k++){
-                                pt[j+k].pt_pres = 0;
-                                pt[j+k].pt_write = 1;
-                                pt[j+k].pt_user = 0;
-                                pt[j+k].pt_pwt = 1;
-                                pt[j+k].pt_pcd = 1;
-                                pt[j+k].pt_acc = 1;
-                                pt[j+k].pt_dirty = 0;
-                                pt[j+k].pt_mbz = 0;
-                                pt[j+k].pt_global = 0;
                                 pt[j+k].pt_avail = 3;
-                                pt[j+k].pt_base = (pt_base_addr >> 12) & 0xFFFFF;
-                                pt_base_addr = pt_base_addr + PAGE_SIZE;
-                                kprintf("base address for PT page: %x\n", pt_base_addr);
                             }
                             mask = disable();
                             write_cr3(user_cr3);
                             restore(mask);
-                            return (char *)starting_pt_addr;
+                            return (char *)va_pt_addr;
                         }else{
                             j = next_index;
                         }
                     }else{
-                        kprintf("%d + %d is > %d\n", j, frames, MAX_PT_SIZE);
+//                        // kprintf("%d + %d is > %d\n", j, frames, MAX_PT_SIZE);
                         for(k = j; k < MAX_PT_SIZE; k++){
                             if(pt[k].pt_avail != 3) {
                                 counter++;
                             }
                         }
                         if(counter == (MAX_PT_SIZE - j)){
-                            kprintf("%d == %d\n", counter, (MAX_PT_SIZE-j));
+//                            // kprintf("%d == %d\n", counter, (MAX_PT_SIZE-j));
 
                             //make another for loop that goes through the next joint
                             // if pres is 0, initialize it and stuff
@@ -165,70 +147,66 @@ char* vmalloc (uint32 nbytes){
                                 restore(mask);
                                 return SYSERR;
                             }else{
-                                kprintf("%d is not 1023\n", i);
+//                                // kprintf("%d is not 1023\n", i);
                                 if(pd[i+1].pd_pres == 0){
-                                    kprintf("pd[%d].pd_pres is 0\n", i+1);
                                     //initialize the last couple page tables of the page dir entry
-                                    starting_pt_addr = (pt[j-1].pt_base << 12);
-                                    starting_pt_addr = starting_pt_addr + PAGE_SIZE;
-                                    pt_base_addr = starting_pt_addr;
+                                    va_pt_addr = (i * PAGE_SIZE * MAX_PT_SIZE) + (PAGE_SIZE * j);
                                     for(;j < MAX_PT_SIZE; j++){
-                                        pt[j].pt_pres = 0;
-                                        pt[j].pt_write = 1;
-                                        pt[j].pt_user = 0;
-                                        pt[j].pt_pwt = 1;
-                                        pt[j].pt_pcd = 1;
-                                        pt[j].pt_acc = 1;
-                                        pt[j].pt_dirty = 0;
-                                        pt[j].pt_mbz = 0;
-                                        pt[j].pt_global = 0;
                                         pt[j].pt_avail = 3;
-                                        pt[j].pt_base = (pt_base_addr >> 12) & 0xFFFFF;
-                                        kprintf("base address for PT page: %x\n", pt_base_addr);
-                                        pt_base_addr = pt_base_addr + PAGE_SIZE;
                                     }
-
                                     //initialize the new page dir entry and finish initializing the tables
                                     // allocate page dir entry
-                                    base_addr = (pd[i].pd_base << 12) + PAGE_SIZE;
-                                    pd[i+1].pd_pres = 1;
-                                    pd[i+1].pd_write = 1;
-                                    pd[i+1].pd_user = 0;
-                                    pd[i+1].pd_pwt = 1;
-                                    pd[i+1].pd_pcd = 1;
-                                    pd[i+1].pd_acc = 1;
-                                    pd[i+1].pd_mbz = 0;
-                                    pd[i+1].pd_fmb = 0;
-                                    pd[i+1].pd_global = 0;
-                                    pd[i+1].pd_avail = 3; // set pd_avail from 000 to 011
-                                    pd[i+1].pd_base = (base_addr >> 12) & 0xFFFFF;
+                                    for(base_addr = PAGE_DIR_ADDR_START; base_addr < PD_PT_AREA_END; base_addr += PAGE_SIZE){
+                                        addr = (char *)base_addr;
+                                        pt = (pt_t *) addr;
+                                        if(pt[0].pt_avail == 0){
+                                            // kprintf("pt addr is %x\n", pt);
+                                            pd[i+1].pd_pres = 1;
+                                            pd[i+1].pd_write = 1;
+                                            pd[i+1].pd_user = 0;
+                                            pd[i+1].pd_pwt = 1;
+                                            pd[i+1].pd_pcd = 1;
+                                            pd[i+1].pd_acc = 1;
+                                            pd[i+1].pd_mbz = 0;
+                                            pd[i+1].pd_fmb = 0;
+                                            pd[i+1].pd_global = 0;
+                                            pd[i+1].pd_avail = 3;
+                                            pd[i+1].pd_base = (base_addr >> 12) & 0xFFFFF;
 
+                                            for(j = 0; j < MAX_PT_SIZE; j++){
+                                                pt[j].pt_pres = 0;
+                                                pt[j].pt_write = 1;
+                                                pt[j].pt_user = 0;
+                                                pt[j].pt_pwt = 1;
+                                                pt[j].pt_pcd = 1;
+                                                pt[j].pt_acc = 1;
+                                                pt[j].pt_dirty = 0;
+                                                pt[j].pt_mbz = 0;
+                                                pt[j].pt_global = 0;
+                                                pt[j].pt_avail = 2;
+                                                pt[j].pt_base = 0;
+                                            }
+                                        }
+                                        base_addr = PD_PT_AREA_END;
+                                    }
+                                    
+                                    base_addr = (pd[i].pd_base << 12);
                                     addr = (char *)base_addr;
                                     pt = (pt_t *) addr;
+                                    // kprintf("pt addr is %x\n", pt);
 
                                     for(j=0;j < frames; j++){
-                                        pt[j].pt_pres = 0;
-                                        pt[j].pt_write = 1;
-                                        pt[j].pt_user = 0;
-                                        pt[j].pt_pwt = 1;
-                                        pt[j].pt_pcd = 1;
-                                        pt[j].pt_acc = 1;
-                                        pt[j].pt_dirty = 0;
-                                        pt[j].pt_mbz = 0;
-                                        pt[j].pt_global = 0;
                                         pt[j].pt_avail = 3;
-                                        pt[j].pt_base = (pt_base_addr >> 12) & 0xFFFFF;
-                                        kprintf("base address for PT page: %x\n", pt_base_addr);
-                                        pt_base_addr = pt_base_addr + PAGE_SIZE;
                                     }
                                     mask = disable();
                                     write_cr3(user_cr3);
                                     restore(mask);
-                                    return (char *)starting_pt_addr;
+                                    return (char *)va_pt_addr;
                                 }else{
-                                    kprintf("pd[%d].pd_pres is 1\n", i+1);
                                     addr = (char *)(pd[i+1].pd_base << 12);
                                     pt_t *temp_pt = (pt_t *)addr;
+                                    // kprintf("temp addr is %x\n", temp_pt);
+
                                     counter = 0;
                                     for(k = 0; k < frames; k++){
                                         if(temp_pt[k].pt_avail != 3){
@@ -237,44 +215,18 @@ char* vmalloc (uint32 nbytes){
                                     }
                                     if(counter == frames){
                                         // initialize last couple free pages before moving on
-                                        starting_pt_addr = (pt[j-1].pt_base << 12);
-                                        starting_pt_addr = starting_pt_addr + PAGE_SIZE;
-                                        pt_base_addr = starting_pt_addr;
+                                        va_pt_addr = (i * PAGE_SIZE * MAX_PT_SIZE) + (PAGE_SIZE * j);
                                         for(;j < MAX_PT_SIZE; j++){
-                                            pt[j].pt_pres = 0;
-                                            pt[j].pt_write = 1;
-                                            pt[j].pt_user = 0;
-                                            pt[j].pt_pwt = 1;
-                                            pt[j].pt_pcd = 1;
-                                            pt[j].pt_acc = 1;
-                                            pt[j].pt_dirty = 0;
-                                            pt[j].pt_mbz = 0;
-                                            pt[j].pt_global = 0;
                                             pt[j].pt_avail = 3;
-                                            pt[j].pt_base = (pt_base_addr >> 12) & 0xFFFFF;
-                                            kprintf("base address for PT page: %x\n", pt_base_addr);
-                                            pt_base_addr = pt_base_addr + PAGE_SIZE;
                                         }
 
                                         for(j=0;j < frames; j++){
-                                            temp_pt[j].pt_pres = 0;
-                                            temp_pt[j].pt_write = 1;
-                                            temp_pt[j].pt_user = 0;
-                                            temp_pt[j].pt_pwt = 1;
-                                            temp_pt[j].pt_pcd = 1;
-                                            temp_pt[j].pt_acc = 1;
-                                            temp_pt[j].pt_dirty = 0;
-                                            temp_pt[j].pt_mbz = 0;
-                                            temp_pt[j].pt_global = 0;
                                             temp_pt[j].pt_avail = 3;
-                                            temp_pt[j].pt_base = (pt_base_addr >> 12) & 0xFFFFF;
-                                            kprintf("base address for PT page: %x\n", pt_base_addr);
-                                            pt_base_addr = pt_base_addr + PAGE_SIZE;
                                         }
                                         mask = disable();
                                         write_cr3(user_cr3);
                                         restore(mask);
-                                        return (char *)starting_pt_addr;
+                                        return (char *)va_pt_addr;
                                     }else{
                                         j = MAX_PT_SIZE;
                                     }
@@ -282,8 +234,6 @@ char* vmalloc (uint32 nbytes){
                             }
                         }
                     }
-                }else{
-//                    kprintf("pt[%d].pt_avail is %d\n", j, pt[j].pt_avail);
                 }
             }
             i++;

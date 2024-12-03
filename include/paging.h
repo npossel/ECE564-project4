@@ -4,13 +4,15 @@
 #define _PAGING_H_
 
 /* Macros */
-#define XINU_PAGES      8192    /* number of pages used by default by Xinu               */
-#define PAGE_SIZE       4096    /* number of bytes per page                              */
-#define MAX_FFS_SIZE    16*1024 /* size of FFS space  (in frames)                        */
-#define MAX_SWAP_SIZE   32*1024 /* size of swap space  (in frames)                       */
-#define MAX_PT_SIZE     1024    /* size of space used for page tables (in frames)        */
+#define XINU_PAGES      8192    /* number of pages used by default by Xinu                */
+#define PAGE_SIZE       4096    /* number of bytes per page                               */
+#define MAX_FFS_SIZE    16*1024 /* size of FFS space  (in frames)                         */
+#define MAX_SWAP_SIZE   32*1024 /* size of swap space  (in frames)                        */
+#define MAX_PT_SIZE     1024    /* size of space used for page tables (in frames)         */
 #define PAGE_DIR_ADDR_START (XINU_PAGES+MAX_FFS_SIZE)*PAGE_SIZE
-#define FFS_START       XINU_PAGES*PAGE_SIZE /* Starting address of FFS Area*/
+#define FFS_START       XINU_PAGES*PAGE_SIZE /* Starting address of FFS Area              */
+#define PD_PT_AREA_END  PAGE_DIR_ADDR_START + (PAGE_SIZE * MAX_PT_SIZE) /* end of PT_AREA */
+
 
 /* Structure for a page directory entry */
 
