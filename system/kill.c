@@ -40,7 +40,6 @@ syscall	kill(
 	case PR_CURR:
 		prptr->prstate = PR_FREE;	/* Suicide */
 
-		// kprintf("before suicide. PID is %d\n", pid);
 		kill_vm(pid);
 		resched();
 
@@ -62,7 +61,6 @@ syscall	kill(
 		prptr->prstate = PR_FREE;
 	}
 	restore(mask);
-
 	return OK;
 }
 
@@ -93,7 +91,6 @@ void kill_vm(
 	write_cr3(cr3_write_val);
 
 	if(base_address != PAGE_DIR_ADDR_START){
-		// kprintf("base address is %x\n", base_address);
 		// kprintf("Wiping out virtual memory for process %d\n", pid);
 		// kprintf("PD for process is %x\n", base_address);
 		for(i=0; i<1024; i++) {
@@ -109,6 +106,7 @@ void kill_vm(
 						if(pt[j].pt_pres == 1) {
 							// iterate through the PTEs pointing to the FFS area and set valid of 
 							// matching base to 0
+							// kprintf("present bit is 1\n");
 
 							address = (char *)ffs_area_pt_base;
 							ffs_pt = (pt_t *)address;
