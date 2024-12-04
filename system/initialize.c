@@ -265,11 +265,8 @@ unsigned long 	initialize_page_table()
 	pt_t *pt;
 	intmask	mask;
 	struct	memblk	*memptr;
-	
-    for(memptr = memlist.mnext; memptr != NULL; memptr = memptr->mnext){
-        // kprintf("Free list block: %p\n", &memptr);
-        // kprintf("Length :%d\n", memptr->mlength);
-    }
+
+	mask = disable();
 
 	base_address = PAGE_DIR_ADDR_START;
 	address = (char *)base_address;
@@ -335,7 +332,6 @@ unsigned long 	initialize_page_table()
 		}
     }
 
-	mask = disable();
 	cr3_read_val = read_cr3();
 	cr3_write_val = (cr3 & 0xFFFFF000) | (cr3_read_val & 0x00000FFF);
 	write_cr3(cr3_write_val);

@@ -19,10 +19,6 @@ syscall	kill(
 	unsigned long cr3_write_val;
 
 	mask = disable();
-	
-	cr3_read_val = read_cr3();
-	cr3_write_val = (PAGE_DIR_ADDR_START & 0xFFFFF000) | (cr3_read_val & 0x00000FFF);
-	write_cr3(cr3_write_val);
 
 	if (isbadpid(pid) || (pid == NULLPROC)
 	    || ((prptr = &proctab[pid])->prstate) == PR_FREE) {
@@ -43,11 +39,8 @@ syscall	kill(
 	switch (prptr->prstate) {
 	case PR_CURR:
 		prptr->prstate = PR_FREE;	/* Suicide */
-		cr3_read_val = read_cr3();
-		cr3_write_val = (PAGE_DIR_ADDR_START & 0xFFFFF000) | (cr3_read_val & 0x00000FFF);
-		write_cr3(cr3_write_val);
 
-		// kprintf("before suicide. CR3 value is %x\n", read_cr3());
+		// kprintf("before suicide. PID is %d\n", pid);
 		kill_vm(pid);
 		resched();
 
@@ -68,15 +61,7 @@ syscall	kill(
 	default:
 		prptr->prstate = PR_FREE;
 	}
-	// kprintf("before kill at end of kill\n");
-	kill_vm(pid);
-
 	restore(mask);
-	
-	prptr = &proctab[currpid];
-	cr3_read_val = read_cr3();
-	cr3_write_val = (prptr->page_addr & 0xFFFFF000) | (cr3_read_val & 0x00000FFF);
-	write_cr3(cr3_write_val);
 
 	return OK;
 }
@@ -92,6 +77,8 @@ void kill_vm(
 	pt_t *pt;
     pd_t *pd;
 	pt_t *ffs_pt;
+	unsigned long cr3_read_val;
+	unsigned long cr3_write_val;
 
 
 	prptr = &proctab[pid];
@@ -99,16 +86,23 @@ void kill_vm(
 	address = (char *)base_address;
 	pd = (pd_t *)address;
 	ffs_area_pt_base = PAGE_DIR_ADDR_START+XINU_PAGES*4+PAGE_SIZE;
+
+	
+	cr3_read_val = read_cr3();
+	cr3_write_val = (PAGE_DIR_ADDR_START & 0xFFFFF000) | (cr3_read_val & 0x00000FFF);
+	write_cr3(cr3_write_val);
+
 	if(base_address != PAGE_DIR_ADDR_START){
+		// kprintf("base address is %x\n", base_address);
 		// kprintf("Wiping out virtual memory for process %d\n", pid);
 		// kprintf("PD for process is %x\n", base_address);
 		for(i=0; i<1024; i++) {
 			if(pd[i].pd_pres==1) {
 				// kprintf("pd[%d] is present\n", i);
 				if(i >= XINU_PAGES/MAX_PT_SIZE) {
-					// kprintf("PDE is present and points to not XINU\n");
 					base_address = pd[i].pd_base << 12;
 					address = (char *)base_address;
+					// kprintf("base for page table is: %x\n", base_address);
 					pt = (pt_t *)address;
 
 					for(j=0; j<1024; j++) {

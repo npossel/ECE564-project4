@@ -3,7 +3,7 @@
 /* NOTE: set QUANTUM to 10ms */
 
 /* enables debugging information */
-//#define DEBUG
+#define DEBUG
 
 #ifdef ECE465
 #define PREALLOCATED_PAGES (XINU_PAGES+MAX_PT_SIZE+MAX_FFS_SIZE)

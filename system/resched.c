@@ -16,11 +16,12 @@ void	resched(void)		/* Assumes interrupts are disabled	*/
 	unsigned long cr3_write_val;
 	intmask	mask;
 
-	mask = disable;
-	cr3_read_val = read_cr3();
-	cr3_write_val = (PAGE_DIR_ADDR_START & 0xFFFFF000) | (cr3_read_val & 0x00000FFF);
-	write_cr3(cr3_write_val);
-	restore(mask);
+	// mask = disable();
+	// cr3_read_val = read_cr3();
+	// cr3_write_val = (PAGE_DIR_ADDR_START & 0xFFFFF000) | (cr3_read_val & 0x00000FFF);
+	// kprintf("RESCHEDULE: setting cr3 to system\n");
+	// write_cr3(cr3_write_val);
+	// restore(mask);
 
 	/* If rescheduling is deferred, record attempt and return */
 
@@ -49,7 +50,7 @@ void	resched(void)		/* Assumes interrupts are disabled	*/
 	currpid = dequeue(readylist);
 	ptnew = &proctab[currpid];
 
-	mask = disable;
+	mask = disable();
 	cr3_read_val = read_cr3();
 	cr3_write_val = (ptnew->page_addr & 0xFFFFF000) | (cr3_read_val & 0x00000FFF);
 	write_cr3(cr3_write_val);

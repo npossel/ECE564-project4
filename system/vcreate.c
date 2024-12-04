@@ -160,7 +160,6 @@ local   unsigned long    initialize_user_page_dir(void)
 				pd[i].pd_acc = 1;
 				pd[i].pd_avail = 3; // set pd_avail from 010 to 011
 			}
-			// kprintf("creating process with base %x\n", base_address);
 			return base_address;
 		}
     }

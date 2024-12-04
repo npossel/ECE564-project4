@@ -2,10 +2,31 @@
 
 /* NOTE: set QUANTUM to 10ms */
 
-#define TEST1
-#define TEST2
+/* enables debugging information */
+#define DEBUG
+
+#ifdef ECE465
+#define PREALLOCATED_PAGES (XINU_PAGES+MAX_PT_SIZE+MAX_FFS_SIZE)
+#else
+#define PREALLOCATED_PAGES XINU_PAGES
+#endif
+
+/* comment to skip test cases */ 
+// #define TEST1
+// #define TEST2
 #define TEST3
-#define TEST4
+// #define TEST4
+// #define TEST5
+// #define TEST6
+// #define TEST7
+// #define TEST8
+
+/* =========================================================================== */
+
+uint32 error = 0;
+uint32 done = 0;
+uint32 passed = 0;
+uint32 failed = 0;
 
 void sync_printf(char *fmt, ...)
 {
@@ -16,210 +37,322 @@ void sync_printf(char *fmt, ...)
 }
 
 void process_info(pid32 pid){
-	sync_printf("P%d:: virtual pages = %d\n", pid, allocated_virtual_pages(pid));	
-	sync_printf("P%d:: FFS frames = %d\n", pid, used_ffs_frames(pid)); 
+        sync_printf("[P%d] virtual pages allocated = %d\n", pid, allocated_virtual_pages(pid));
+        sync_printf("[P%d] FFS frames used         = %d\n", pid, used_ffs_frames(pid));
 }
 
-process empty_process(){
-	process_info(currpid);
-	return OK;
+void outcome(uint32 testcase){
+    if(error || !done){
+        sync_printf("\n=== Test case %d FAIL ===\n", testcase);
+	failed++;
+    }else{
+        sync_printf("\n=== Test case %d PASS ===\n", testcase);
+	passed++;
+    }
 }
 
-process vmalloc_process(){
+void test(uint32 numPages, uint32 numInitPages){
+    char *ptr = NULL;
+    
+#ifdef DEBUG
+    process_info(currpid);
+#endif
+    if(allocated_virtual_pages(currpid)!= PREALLOCATED_PAGES || used_ffs_frames(currpid)!=0){
+	error = 1;
+    }
 
-	/* testing vmalloc only */
-
-	sync_printf("P%d:: Allocating 8/4/2/8 pages...\n", currpid);
-	char *ptr1 = vmalloc(8 * PAGE_SIZE);
-	char *ptr2 = vmalloc(4 * PAGE_SIZE);
-	char *ptr3 = vmalloc(2 * PAGE_SIZE);
-	char *ptr4 = vmalloc(8 * PAGE_SIZE);
-
-	sync_printf("P%d:: ptr1=0x%x, ptr2=0x%x, ptr3=0x%x, ptr4=0x%x\n", currpid, ptr1, ptr2, ptr3, ptr4);
-	process_info(currpid);
-
-	/* testing deallocation */
-
-#ifndef ECE465
-
-	sync_printf("\nP%d:: Freeing 40 pages @ ptr1 (should fail)...\n", currpid);
-
-	syscall vf1 = vfree(ptr1, 40 * PAGE_SIZE);
-	if (vf1 == SYSERR) 
-		sync_printf("vfree failed as expected\n");
-	else 
-		sync_printf("vfree error not handled correctly\n");
-
-	process_info(currpid);
-
+#ifdef DEBUG
+    sync_printf("\n[P%d] allocating %d pages ...\n", currpid, numPages);
 #endif
 
-        sync_printf("\nP%d:: Freeing 6 pages @ ptr2...\n", currpid);
-        vfree(ptr2, 6 * PAGE_SIZE);
+    // allocate virtual heap
+    ptr = vmalloc(numPages * PAGE_SIZE);
 
-        process_info(currpid);
-
-	/* testing virtual space handling (first-fit for ECE565, next-fit for ECE465) */
-	
-#ifdef ECE465
-	sync_printf("\nP%d:: Allocating 8 pages...\n", currpid);
-	char *ptr5 = vmalloc(8 * PAGE_SIZE);
-#else
-	sync_printf("\nP%d:: Allocating 5 pages...\n", currpid);
-	char *ptr5 = vmalloc(5 * PAGE_SIZE);
+#ifdef DEBUG
+    process_info(currpid);
 #endif
-	sync_printf("P%d:: Allocating 8 pages...\n", currpid);
-	char *ptr6 = vmalloc(8 * PAGE_SIZE);
+    if(allocated_virtual_pages(currpid)!= PREALLOCATED_PAGES+numPages || used_ffs_frames(currpid)!=0){
+	error = 1;
+    }
 
-	sync_printf("P%d:: ptr1=0x%x, ptr4=0x%x, ptr5=0x%x, ptr6=0x%x\n", currpid, ptr1, ptr4, ptr5, ptr6);
-	process_info(currpid);
+    if (ptr==(char *)SYSERR){
+	sync_printf("[P%d] vmalloc failed\n", currpid);
+	kill(currpid);
+    }else{
+#ifdef DEBUG
+	sync_printf("[P%d] allocated starts at address 0x%08x\n", currpid, ptr);
+#endif
+    }
 
-	sync_printf("P%d:: Free FFS pages = %d out of %d\n\n", currpid, free_ffs_pages(), MAX_FFS_SIZE);
+    uint32 i=0;
 
-	/* testing FFS allocation */
-	sync_printf("P%d:: Accessing 1 page @ ptr1...\n", currpid);
-	ptr1[0]=0;
-	sync_printf("P%d:: Free FFS pages = %d out of %d\n\n", currpid, free_ffs_pages(), MAX_FFS_SIZE);
-	sync_printf("P%d:: Accessing again 1 page @ ptr1...\n", currpid);
-	ptr1[4]=0;
-	sync_printf("P%d:: Free FFS pages = %d out of %d\n\n", currpid, free_ffs_pages(), MAX_FFS_SIZE);
-	sync_printf("P%d:: Accessing 2nd page from ptr4...\n", currpid);
-	ptr4[PAGE_SIZE]=0;
-	sync_printf("P%d:: Free FFS pages = %d out of %d\n\n", currpid, free_ffs_pages(), MAX_FFS_SIZE);
-	process_info(currpid);
+    // write data
+    for(i =0; i<numInitPages; i++){
+	ptr[i*PAGE_SIZE] = 'A';
+    }
+    
+#ifdef DEBUG
+    sync_printf("\n[P%d] %d pages initialized...\n", currpid, numInitPages);
+    process_info(currpid);
+#endif
+    if(allocated_virtual_pages(currpid)!= PREALLOCATED_PAGES+numPages || used_ffs_frames(currpid)!=numInitPages){
+	error = 1;
+    }
 
-	/* testing segmentation fault */
-	sync_printf("\nP%d:: Testing segmentation fault...\n", currpid);
-	ptr6[8*PAGE_SIZE]=0;
+    // read data
+    char c = 0;
+    for(i=0; i<numInitPages; i++){
+        c =  ptr[i*PAGE_SIZE];
+        if(c!='A'){
+	    sync_printf("[P%d] fail to read %d-th page\n", currpid, i);
+            error = 1;
+            break;
+        }
+    }
 
-	sync_printf("P%d :: ERROR: process should already be killed!", currpid);
-	
-	return OK;
+    if (vfree(ptr, numPages*PAGE_SIZE)==SYSERR){
+	sync_printf("[P%d] vfree failed\n", currpid);
+	kill(currpid);
+    }
+    
+#ifdef DEBUG
+    sync_printf("\n[P%d] %d pages freed...\n", currpid, numPages);
+    process_info(currpid);
+#endif
+    if(allocated_virtual_pages(currpid)!= PREALLOCATED_PAGES || used_ffs_frames(currpid)!=0){
+	error = 1;
+    }
+
+    done = 1;
 }
 
-process vmalloc_process2(uint32 numPages, bool8 debug){
+/* vmalloc is supposed to fail */
+void test2(uint32 numPages){
+    char *ptr = NULL;
 
-	uint32 i = 0;
+#ifdef DEBUG
+    process_info(currpid);
+#endif 
+    
+    if(allocated_virtual_pages(currpid)!= PREALLOCATED_PAGES || used_ffs_frames(currpid)!=0){
+        error = 1;
+    }
+    
+#ifdef DEBUG
+    sync_printf("\n[P%d] trying to allocate %d pages...\n", currpid, numPages);
+#endif
 
-	/* testing vmalloc only */
+    // allocate virtual heap
+    ptr = vmalloc(numPages * PAGE_SIZE); 
 
-	if (debug){	
-		process_info(currpid);
+    if (ptr!=(char *)SYSERR){
+        sync_printf("[P%d] allocation should have failed!\n", currpid);
+	error=1;
+    	kill(currpid);
+    }
 
-		kprintf("\nP%d:: Making 3 allocations, %d pages each...\n", currpid, numPages);
-	}
-
-	char *ptr1 = vmalloc(numPages * PAGE_SIZE);
-	char *ptr2 = vmalloc(numPages * PAGE_SIZE);
-	char *ptr3 = vmalloc(numPages * PAGE_SIZE);
-
-	if (ptr1==(char *)SYSERR || ptr2==(char *)SYSERR || ptr3==(char *)SYSERR){
-		sync_printf("P%d:: allocation failed!\n");	
-		exit();	
-	}else if (debug){
-		sync_printf("P%d:: ptr1=0x%x, ptr2=0x%x, ptr3=0x%x\n", currpid, ptr1, ptr2, ptr3);
-		process_info(currpid);
-	}
-
-	/* testing FFS allocation */
-	if (debug) kprintf("\nP%d:: Initializing %d pages, 2 elements per page...\n", currpid, numPages/2);
-	for (i=0; i<numPages/2; i++){
-		ptr1[i*PAGE_SIZE]=i%128;
-		ptr1[i*PAGE_SIZE+1]=i%128;
-	}	
-		
-	if (debug) process_info(currpid);
-
-	if (debug) kprintf("\nP%d:: checking the values written in the %d pages...\n", currpid, numPages/2);
-	for (i=0; i<numPages/2; i++){
-		if (ptr1[i*PAGE_SIZE]!=i%128 || ptr1[i*PAGE_SIZE+1]!=i%128){
-			sync_printf("P%d:: ERROR - read incorrect data from page %d!\n",currpid, i);
-		}
-	}
-
-	process_info(currpid);
-
-	sleepms(200); // waiting so that main can see FFS taken
-
-	return OK;
+    done=1;
 }
 
+
+/*
+ * Test 1: A single process that uses only portion of FFS space
+ */
+void test1_run(void){
+
+    error = 0; done = 0;
+
+    pid32 p1 = vcreate(test, 2000, 50, "test", 2, MAX_FFS_SIZE/2, MAX_FFS_SIZE/2);
+    resume(p1);
+
+    receive();
+
+    outcome(1);
+}
+
+
+/*
+ * Test2: A single process that exhausts the FFS space
+ */
+void test2_run(void){
+
+    error = 0; done = 0;
+    pid32 p1 = vcreate(test, 2000, 50, "test", 2, MAX_FFS_SIZE, MAX_FFS_SIZE);
+    resume(p1);
+
+    receive();
+    
+    outcome(2);
+}
+
+/*
+ * Test 3: 2 processes execute in sequence
+ */
+void test3_run(void){
+    error = 0; done = 0;
+    pid32 p1 = vcreate(test, 2000, 10, "P1", 2,  MAX_FFS_SIZE, MAX_FFS_SIZE);
+    resume(p1);
+    // wait for the first process to be finished
+    receive();
+
+    pid32 p2 = vcreate(test, 2000, 10, "P2", 2, MAX_FFS_SIZE, MAX_FFS_SIZE);
+    resume(p2);
+    // wait for the second process to be finished
+    receive();
+
+    outcome(3);
+}
+
+
+/*
+ * Test 4: Multiple concurrent processes exhaust FFS space 
+ */
+void test4_run(void){
+
+    error = 0; done = 0;	
+
+    pid32 p1 = vcreate(test, 2000, 10, "P1", 2, MAX_FFS_SIZE/4, MAX_FFS_SIZE/4);
+    pid32 p2 = vcreate(test, 2000, 10, "P2", 2, MAX_FFS_SIZE/4, MAX_FFS_SIZE/4);
+    pid32 p3 = vcreate(test, 2000, 10, "P3", 2, MAX_FFS_SIZE/4, MAX_FFS_SIZE/4);
+    pid32 p4 = vcreate(test, 2000, 10, "P4", 2, MAX_FFS_SIZE/4, MAX_FFS_SIZE/4);
+    resume(p1);
+    resume(p2);
+    resume(p3);
+    resume(p4);
+
+    receive();
+    receive();
+    receive();
+    receive();
+
+    outcome(4);
+}
+
+/*
+ * Test 5: A single process that allocate more memory than it uses (and exhausts FFS space)
+ */
+void test5_run(void){
+
+    error = 0; done = 0;
+
+    pid32 p1 = vcreate(test, 2000, 50, "test", 2, MAX_FFS_SIZE*2 , MAX_FFS_SIZE);
+    resume(p1);
+
+    receive();
+
+    outcome(5);
+}
+
+/*
+ * Test 6: Multiple concurrent processes that allocate more than the FFS space (and exhaust FFS) 
+ */
+void test6_run(void){
+
+    error = 0; done = 0;
+
+    pid32 p1 = vcreate(test, 2000, 10, "P1", 2, MAX_FFS_SIZE*4, MAX_FFS_SIZE/4);
+    pid32 p2 = vcreate(test, 2000, 10, "P2", 2, MAX_FFS_SIZE*4, MAX_FFS_SIZE/4);
+    pid32 p3 = vcreate(test, 2000, 10, "P3", 2, MAX_FFS_SIZE*4, MAX_FFS_SIZE/4);
+    pid32 p4 = vcreate(test, 2000, 10, "P4", 2, MAX_FFS_SIZE*4, MAX_FFS_SIZE/4);
+    resume(p1);
+    resume(p2);
+    resume(p3);
+    resume(p4);
+
+    receive();
+    receive();
+    receive();
+    receive();
+
+    outcome(6);
+}
+
+/*
+ * Test 7: A single process tries to make allocation exceeding size of virtual address space 
+ */
+void test7_run(void){
+
+    error = 0; done = 0;
+
+    pid32 p1 = vcreate(test2, 2000, 50, "test2", 1, 1024*1024-1);
+    resume(p1);
+
+    receive();
+
+    outcome(7);
+}
+
+/*
+ * Test 8: A single process tries to make allocation exhausting PT area 
+ */
+void test8_run(void){
+
+    error = 0; done = 0;
+
+    pid32 p1 = vcreate(test2, 2000, 50, "test2", 1, ((1024*1024)-PREALLOCATED_PAGES-1));
+    resume(p1);
+
+    receive();
+
+    outcome(8);
+}
+
+/**************   MAIN *********************/
 process	main(void)
 {
-
-	uint32 i = 0;
-
-	sync_printf("\n\nTESTS START NOW...\n");
-	sync_printf("-------------------\n\n");
-
-	/* After initialization */
-	sync_printf("P%d:: Free FFS pages = %d out of %d\n\n", currpid, free_ffs_pages(), MAX_FFS_SIZE);
+   sync_printf("\npreallocated pages = %d\n", PREALLOCATED_PAGES);
 
 #ifdef TEST1
-
-	/* TEST1: 2 processes, no vheap allocation */
-	
-	sync_printf("[TEST 1] P%d:: Spawning 2 processes that do not perform any vheap allocations...\n\n", currpid);
-
-	resume(vcreate((void *)empty_process, INITSTK, 1, "p1", 0));
-	sleepms(1000);	
-	resume(vcreate((void *)empty_process, INITSTK, 1, "p2", 0));
-
-	receive();
-	receive();
-
-	sync_printf("P%d:: Free FFS pages = %d out of %d\n\n", currpid, free_ffs_pages(), MAX_FFS_SIZE);
-
+    sync_printf("\n=======================================\n");
+    sync_printf("              run TEST1       \n");
+    sync_printf("=======================================\n");
+    test1_run();
 #endif
-
 #ifdef TEST2
-
-	/* TEST2: 1 process with small allocations */	
-	sync_printf("[TEST 2] P%d:: Spawning 1 process that performs small allocations...\n\n", currpid);
-	resume(vcreate((void *)vmalloc_process, INITSTK, 1, "small", 0));
-	
-	receive();
-	sleepms(100);
-
-	sync_printf("\nP%d:: Free FFS pages = %d out of %d\n\n", currpid, free_ffs_pages(), MAX_FFS_SIZE);
-
+    sync_printf("\n=======================================\n");
+    sync_printf("              run TEST2       \n");
+    sync_printf("=======================================\n");
+    test2_run();
 #endif
-
-#ifdef TEST3	
-
-	/* TEST3: 1 process with allocations requiring multiple pages of PT */
-	sync_printf("[TEST 3] P%d:: Spawning 1 process that performs large allocations...\n\n", currpid);
-	resume(vcreate((void *)vmalloc_process2, INITSTK, 1, "large", 2, 4*1024, TRUE));
-	
-	receive();
-	sleepms(100);
-
-	sync_printf("\nP%d:: Free FFS pages = %d out of %d\n\n", currpid, free_ffs_pages(), MAX_FFS_SIZE);
-
+#ifdef TEST3
+    sync_printf("\n=======================================\n");
+    sync_printf("              run TEST3       \n");
+    sync_printf("=======================================\n");
+    test3_run();
 #endif
-
 #ifdef TEST4
-	
-	/* TEST4: 10 concurrent processes that perform small allocations */
-	sync_printf("[TEST 4] P%d:: Spawning 10 concurrent processes (interleaving can change from run to run)...\n\n", currpid);
-	for (i=0; i<10; i++){
-		resume(vcreate((void *)vmalloc_process2, INITSTK, 1, "p", 2, 80, FALSE));
-	}
-
-	sleepms(100);
-	
-	sync_printf("P%d:: Free FFS pages = %d out of %d\n\n", currpid, free_ffs_pages(), MAX_FFS_SIZE);
-	
-	sync_printf("P%d:: Letting the processes terminate...\n\n");
-	for (i=0; i<10; i++){
-		receive();
-	}
-	
-	sleepms(100);
-
-	sync_printf("P%d:: Free FFS pages = %d out of %d\n\n", currpid, free_ffs_pages(), MAX_FFS_SIZE);
-
+    sync_printf("\n=======================================\n");
+    sync_printf("              run TEST4       \n");
+    sync_printf("=======================================\n");
+    test4_run();
 #endif
-
-   	return OK; 
+#ifdef TEST5
+    sync_printf("\n=======================================\n");
+    sync_printf("              run TEST5       \n");
+    sync_printf("=======================================\n");
+    test5_run();
+#endif
+#ifdef TEST6
+    sync_printf("\n=======================================\n");
+    sync_printf("              run TEST6       \n");
+    sync_printf("=======================================\n");
+    test6_run();
+#endif
+#ifdef TEST7
+    sync_printf("\n=======================================\n");
+    sync_printf("              run TEST7       \n");
+    sync_printf("=======================================\n");
+    test7_run();
+#endif
+#ifdef TEST8
+    sync_printf("\n=======================================\n");
+    sync_printf("              run TEST8       \n");
+    sync_printf("=======================================\n");
+    test8_run();
+#endif
+    sync_printf("\nAll tests are done!\n");
+    sync_printf("PASSED=%d FAILED=%d\n", passed, failed);
+    return OK;
 }
+
+

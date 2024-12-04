@@ -16,7 +16,6 @@ uint32 free_ffs_pages(){
 	cr3_read_val = read_cr3();
 	cr3_write_val = (PAGE_DIR_ADDR_START & 0xFFFFF000) | (cr3_read_val & 0x00000FFF);
 	write_cr3(cr3_write_val);
-	restore(mask);
 
     base_address = PAGE_DIR_ADDR_START+XINU_PAGES*4+PAGE_SIZE*1;
     address = (char *)base_address;
@@ -30,7 +29,6 @@ uint32 free_ffs_pages(){
     }
 
     prptr = &proctab[currpid];
-	mask = disable();
 	cr3_read_val = read_cr3();
 	cr3_write_val = (prptr->page_addr & 0xFFFFF000) | (cr3_read_val & 0x00000FFF);
 	write_cr3(cr3_write_val);
@@ -60,7 +58,6 @@ uint32 allocated_virtual_pages(pid32 pid){
 	cr3_read_val = read_cr3();
 	cr3_write_val = (PAGE_DIR_ADDR_START & 0xFFFFF000) | (cr3_read_val & 0x00000FFF);
 	write_cr3(cr3_write_val);
-	restore(mask);
 
     allocated = 0;
     prptr = &proctab[pid];
@@ -83,7 +80,6 @@ uint32 allocated_virtual_pages(pid32 pid){
     }
 
     prptr = &proctab[currpid];
-	mask = disable();
 	cr3_read_val = read_cr3();
 	cr3_write_val = (prptr->page_addr & 0xFFFFF000) | (cr3_read_val & 0x00000FFF);
 	write_cr3(cr3_write_val);
@@ -109,7 +105,6 @@ uint32 used_ffs_frames(pid32 pid){
 	cr3_read_val = read_cr3();
 	cr3_write_val = (PAGE_DIR_ADDR_START & 0xFFFFF000) | (cr3_read_val & 0x00000FFF);
 	write_cr3(cr3_write_val);
-	restore(mask);
 
     allocated = 0;
     prptr = &proctab[pid];
@@ -123,6 +118,7 @@ uint32 used_ffs_frames(pid32 pid){
             base_address = pd[i].pd_base << 12;
             address = (char *)base_address;
             pt = (pt_t *)address;
+            // kprintf("PDE: %d, PT base: %x\n", i, base_address);
 
             for(j=0; j<1024; j++) {
                 if(pt[j].pt_pres == 1) {
@@ -133,7 +129,6 @@ uint32 used_ffs_frames(pid32 pid){
     }
 
     prptr = &proctab[currpid];
-    mask = disable();
 	cr3_read_val = read_cr3();
 	cr3_write_val = (prptr->page_addr & 0xFFFFF000) | (cr3_read_val & 0x00000FFF);
 	write_cr3(cr3_write_val);

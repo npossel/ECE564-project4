@@ -19,7 +19,6 @@ syscall vfree (char* ptr, uint32 nbytes){
     mask = disable();
     user_cr3 = read_cr3(); // store the user's cr3
     write_cr3(PAGE_DIR_ADDR_START | (user_cr3 & 0x00000FFF)); // switch cr3 to a system process to update PDPT area
-    restore(mask);
 
     base_addr = proctab[currpid].page_addr;
     addr = (char *)base_addr;
@@ -74,13 +73,11 @@ syscall vfree (char* ptr, uint32 nbytes){
                 pt[i].pt_avail = 0;
                 pt[i].pt_base = 0;
             }
-            mask = disable();
             write_cr3(user_cr3);
             restore(mask);
             return OK;
         }
     }
-    mask = disable();
     write_cr3(user_cr3);
     restore(mask);
     return SYSERR;
